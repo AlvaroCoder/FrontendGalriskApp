@@ -2,7 +2,7 @@
 import { signUp } from '@/authentication/lib';
 import StyleInputMaterialUi from '@/elements/StyleInputMaterialUi';
 import { TextField } from '@mui/material';
-import { Loader2 } from 'lucide';
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react'

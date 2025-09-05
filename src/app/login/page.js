@@ -7,7 +7,7 @@ import StyleInputMaterialUi from '@/elements/StyleInputMaterialUi';
 import { login } from '@/authentication/lib';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide';
+import { Loader2 } from 'lucide-react';
 
 export default function Page() {
   const URL_IMAGEN_LOGIN = "https://res.cloudinary.com/dabyqnijl/image/upload/v1757035964/Finance_app-cuate_khnbqo.png";
