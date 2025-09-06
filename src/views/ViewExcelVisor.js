@@ -1,9 +1,12 @@
 'use client';
-import { getDataExcelByIdExcel, getDataExcelByIdUser, getDocumentExcel, processData } from '@/lib/apiConnection';
+import { extraerVariablesTop, getDataExcelByIdExcel, getDataExcelByIdUser, getDocumentExcel, processData } from '@/lib/apiConnection';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import StackedLineChartIcon from '@mui/icons-material/StackedLineChart';
+import { TextField } from '@mui/material';
+import FormTopVariables from './Forms/FormTopVariables';
+import { useRouter } from 'next/navigation';
 
 function getExcelColumnName(n) {
     let name = "";
@@ -14,13 +17,17 @@ function getExcelColumnName(n) {
     }
     return name;
   }
-export default function ViewExcelVisor({ idExcel = "" }) {
-  const [loading, setLoading] = useState(false);
-  const [sheetNames, setSheetNames] = useState([]);
-  const [selectedSheet, setSelectedSheet] = useState("");
-  const [sheetData, setSheetData] = useState([]);
-  const [selectedCell, setSelectedCell] = useState(null); // Celda seleccionada
-  const [workbook, setWorkbook] = useState(null); 
+export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>{}}) {
+    const [loading, setLoading] = useState(false);
+    const [sheetNames, setSheetNames] = useState([]);
+    const [selectedSheet, setSelectedSheet] = useState("");
+    const [sheetData, setSheetData] = useState([]);
+    const [selectedCell, setSelectedCell] = useState(null); // Celda seleccionada
+    const [workbook, setWorkbook] = useState(null); 
+    const [variablesTop, setVariablesTop] = useState(null);
+    const [numeroVariablesTop, setNumeroVariablesTop] = useState('3');
+    const [rutaExcel, setRutaExcel] = useState(null);
+    const router = useRouter();
 
   useEffect(() => {
     async function fetchExcelDocument() {
@@ -69,19 +76,58 @@ export default function ViewExcelVisor({ idExcel = "" }) {
     setSelectedCell({ row: rowIndex + 1, col: colIndex + 1, value });
   };
 
-  const handleClickProcessData=async()=>{
+  const handleClickExtraerTopVariables=async()=>{
     const letraCelda = String.fromCharCode(65 + selectedCell.col)+String(selectedCell.row);
     const responseExcel = await getDataExcelByIdExcel(idExcel)
     const responseExcelJSON = await responseExcel.json();
     
     const rutaExcel = responseExcelJSON?.ruta_excel;
-    const responseProcessData = await processData({
+    const variablesTop = await extraerVariablesTop({
         hoja : selectedSheet,
         rutaExcel,
         celda : letraCelda
-    });
-    console.log(await responseProcessData.json());
+    }, numeroVariablesTop);
     
+    setRutaExcel(rutaExcel);
+    const variablesTopJSON = await variablesTop.json();
+    setVariablesTop(variablesTopJSON?.resultadosTop);
+    console.log(variablesTopJSON);
+    
+  }
+  const handleSubmitProcess=async(formValues)=>{
+    console.log(formValues);
+    try {
+        setLoading(true);
+        const letraCelda = String.fromCharCode(65 + selectedCell.col)+String(selectedCell.row);
+
+        const newDataToSend = {
+            rutaExcel,
+            celdaObjetivo : letraCelda,
+            hojaObjetivo : selectedSheet,
+            variables : formValues,
+            topResultados : variablesTop
+        }
+        console.log(newDataToSend);
+        
+        const responseProcess = await processData(newDataToSend);
+        console.log(responseProcess);
+        
+        const responseProcessJSON = await responseProcess.json();
+        handleSetEscenarios(responseProcessJSON?.escenarios);
+
+        toast("Se proceso la data correctamente",{
+            type : 'success',
+            position : 'bottom-right'
+        });
+        
+    } catch (error) {
+        toast("No se pudo procesar la data",{
+            type : 'error',
+            position : 'bottom-center'
+        })
+    } finally {
+        setLoading(false)
+    }
   }
 
   return (
@@ -106,70 +152,87 @@ export default function ViewExcelVisor({ idExcel = "" }) {
 
       {/* Tabla del Excel con estilo tipo Excel */}
       <div className="overflow-auto max-h-[500px] border border-gray-300 rounded-lg">
-  <table className="table-fixed border-collapse w-full">
-  <thead className="sticky top-0 bg-gray-200 z-10">
-      <tr>
-        {Array.from({ length: sheetData.length }).map((_, j) => {
-          const columnLetter = getExcelColumnName(j + 1);
-          return (
-            <th
-              key={j}
-              className="border w-[150px] border-gray-400 px-3 py-2 text-sm font-semibold bg-gray-200"
-            >
-              {columnLetter}
-            </th>
-          );
-        })}
-      </tr>
-    </thead>
-    <tbody>
-      {sheetData.map((row, i) => (
-        <tr key={i} className="hover:bg-gray-100">
-          {Array.from({ length: sheetData.length }).map((_, j) => {
-            const cellValue = row[j] || "";
-            const isSelected =
-              selectedCell?.row === i + 1 &&
-              selectedCell?.col === j + 1;
+    <table className="table-fixed border-collapse w-full">
+        <thead className="sticky top-0 bg-gray-200 z-10">
+            <tr>
+                {Array.from({ length: sheetData.length }).map((_, j) => {
+                const columnLetter = getExcelColumnName(j + 1);
+                return (
+                    <th
+                    key={j}
+                    className="border w-[150px] border-gray-400 px-3 py-2 text-sm font-semibold bg-gray-200"
+                    >
+                    {columnLetter}
+                    </th>
+                );
+                })}
+            </tr>
+        </thead>
+        <tbody>
+        {sheetData.map((row, i) => (
+            <tr key={i} className="hover:bg-gray-100">
+            {Array.from({ length: sheetData.length }).map((_, j) => {
+                const cellValue = row[j] || "";
+                const isSelected =
+                selectedCell?.row === i + 1 &&
+                selectedCell?.col === j + 1;
 
-            const formattedCell =
-              typeof cellValue === "number"
-                ? cellValue.toFixed(2)
-                : cellValue;
+                const formattedCell =
+                typeof cellValue === "number"
+                    ? cellValue.toFixed(2)
+                    : cellValue;
 
-            return (
-              <td
-                key={j}
-                className={`border border-gray-300 px-3 py-2 text-sm cursor-pointer w-[150px] whitespace-normal break-words ${
-                  isSelected ? 'bg-yellow-200 font-semibold' : ''
-                }`}
-                onClick={() => handleCellClick(i, j, cellValue)}
-              >
-                {formattedCell}
-              </td>
-            );
-          })}
-        </tr>
-      ))}
-    </tbody>
-  </table>
+                return (
+                <td
+                    key={j}
+                    className={`border border-gray-300 px-3 py-2 text-sm cursor-pointer w-[150px] whitespace-normal break-words ${
+                    isSelected ? 'bg-yellow-200 font-semibold' : ''
+                    }`}
+                    onClick={() => handleCellClick(i, j, cellValue)}
+                >
+                    {formattedCell}
+                </td>
+                );
+            })}
+            </tr>
+        ))}
+        </tbody>
+    </table>
 </div>
-
       {/* Información de la celda seleccionada */}
-      {selectedCell && (
-        <section>
-            <div className="mt-4 p-3 bg-white shadow rounded-lg border">
-                <p><strong>Celda:</strong> Fila : {selectedCell.row}, Columna : {selectedCell.col}, Hoja : {selectedSheet}</p>
-                <p><strong>Valor:</strong> {selectedCell.value}</p>
-            </div>
-            <button 
-                onClick={handleClickProcessData}
-                className='text-white bg-yellow-intense cursor-pointer p-4 rounded-sm shadow hover:bg-amber-500 flex justify-center w-full mt-4 '>
-                <p className='flex flex-row items-center gap-4'><StackedLineChartIcon/> Procesar Informacion</p>
-            </button>
-        </section>
-      )}
-    </>
-  )}
+        {selectedCell && (
+                <section>
+                    <div className="mt-4 p-3 bg-white shadow rounded-lg border">
+                        <p><strong>Celda:</strong> Fila : {selectedCell.row}, Columna : {selectedCell.col}, Hoja : {selectedSheet}</p>
+                        <p><strong>Valor:</strong> {selectedCell.value}</p>
+                    </div>
+                    <div className='w-full flex flex-row gap-4 items-center mt-4'>
+                        <TextField
+                            className='bg-white'
+                            label="Variables"
+                            type='number'
+                            value={numeroVariablesTop}
+                            onChange={(e)=>setNumeroVariablesTop(e.target.value)}
+                        />
+                        <button 
+                            disabled={loading}
+                            onClick={handleClickExtraerTopVariables}
+                            className='text-white bg-yellow-intense cursor-pointer p-4 rounded-sm shadow hover:bg-amber-500 flex justify-center w-full '>
+                            <p className='flex flex-row items-center gap-4'><StackedLineChartIcon/> Extraer Variables Top</p>
+                        </button>
+                    </div>
+                </section>
+            )}
+            </>
+        )}
+        {
+            variablesTop && 
+            <FormTopVariables
+                loading={loading}
+                variablesTop={variablesTop}
+                handleSubmitProcess={handleSubmitProcess}
+            />
+        }
 </div>
   );
 }

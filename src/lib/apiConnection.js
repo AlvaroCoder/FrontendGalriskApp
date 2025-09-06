@@ -2,6 +2,7 @@ const URL_UPLOAD_EXCEL="http://localhost:8080/api/excel/upload";
 const URL_GET_DOCUMENT_EXCEL="http://localhost:8080/api/excel/";
 const URL_GET_DATA_EXCEL="http://localhost:8080/api/excel/usuario/"
 const URL_PROCESS_DATA ="http://localhost:8080/api/excel/processData";
+const URL_EXTRAER_VARIABLES="http://localhost:8080/api/excel/extraerResultadosTop/"
 
 export async function uploadDocumentExcel(fileExcel=null) {
     if (!fileExcel) return;
@@ -10,6 +11,17 @@ export async function uploadDocumentExcel(fileExcel=null) {
         body : fileExcel,
         mode : 'cors'
     });
+}
+
+export async function extraerVariablesTop(data,variablesTop=3) {
+    return await fetch(URL_EXTRAER_VARIABLES+variablesTop,{
+        method : 'POST',
+        mode : 'cors',
+        headers : {
+            'Content-type' : 'application/json'
+        },
+        body : JSON.stringify(data)
+    })
 }
 
 export async function processData(data) {

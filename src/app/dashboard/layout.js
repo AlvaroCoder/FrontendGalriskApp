@@ -5,9 +5,11 @@ export default function Layout({
     children
 }) {
   return (
-    <main >
+    <main className=''>
         <TopBar/>
-        {children}
+        <section className='w-full h-screen '>
+            {children}
+        </section>
     </main>
   )
 };
