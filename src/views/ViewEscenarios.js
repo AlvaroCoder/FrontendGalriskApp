@@ -5,6 +5,8 @@ import HighchartsReact from 'highcharts-react-official';
 import { extraerValoresPorAtributo } from '@/common/extractValueEscenarios';
 
 export default function ViewEscenarios({ escenarios = [] }) {
+  console.log(escenarios);
+  
   const columnas = escenarios.length > 0 ? Object.keys(escenarios[0]) : [];
 
   // ✅ Generar histogramas

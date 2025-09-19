@@ -40,14 +40,14 @@ export async function login(dataUser) {
       const rpta = await response.json();
       return {
         error: true,
-        message: rpta?.detail,
+        message: rpta,
       };
     }
   
     const responseJson = await response.json();    
     const { id, value } = responseJson;
 
-    const session = await encrypt({ user : value });    
+    const session = await encrypt(value);    
     (await cookies()).set("dashboard-session", session, {
       httpOnly: true,
     });
@@ -84,7 +84,7 @@ export async function signUp(dataUser) {
         
         return {
             error : true,
-            message : "Error en el servidor!"
+            message : resp?.error
         }
     };
 
@@ -94,7 +94,8 @@ export async function signUp(dataUser) {
         username, 
         email
     };
-    const session = await encrypt({user})
+    
+    const session = await encrypt(user);
     (await cookies()).set("dashboard-session", session, { httpOnly : true });
     
     return {

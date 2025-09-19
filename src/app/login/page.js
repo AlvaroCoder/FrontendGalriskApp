@@ -17,6 +17,7 @@ export default function Page() {
     password : ""
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange=(e)=>{
     e.preventDefault();
@@ -32,6 +33,7 @@ export default function Page() {
       setLoading(true);
       const response = await login(dataUser);
       if (response.error) {
+        setError(response.message);
         toast("Error iniciar sesion", {
           type : 'error',
           position : 'bottom-center'
@@ -56,6 +58,9 @@ export default function Page() {
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 text-nigth-blue">
       {/* Sección izquierda (Formulario) */}
       <div className="flex flex-col justify-center px-8 md:px-16 bg-white">
+        {error && <div className='w-full bg-red-200 rounded-sm p-4 my-4'>
+          <p>Error : {error?.error}</p>
+        </div>}
         <h2 className="text-3xl font-bold text-[#14213d] mb-6">Inicia sesión en Galrisk</h2>
         <p className="text-gray-600 mb-8">Accede a tu cuenta y analiza tus proyectos de manera segura.</p>
 
@@ -84,7 +89,7 @@ export default function Page() {
           <button
             disabled={loading}
             type="submit"
-            className="w-full bg-[#fca311] text-black font-semibold py-3 rounded-lg hover:bg-yellow-500 transition"
+            className="w-full bg-[#fca311] text-black font-semibold py-3 flex justify-center rounded-lg hover:bg-yellow-500 transition"
           >
             {loading ? <Loader2 className="animate-spin" /> : <p>Iniciar Sesion</p>}
           </button>

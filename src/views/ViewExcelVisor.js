@@ -1,12 +1,11 @@
 'use client';
-import { extraerVariablesTop, getDataExcelByIdExcel, getDataExcelByIdUser, getDocumentExcel, processData } from '@/lib/apiConnection';
+import { extraerVariablesTop, getDataCellValue, getDataExcelByIdExcel, getDocumentExcel, processData } from '@/lib/apiConnection';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import * as XLSX from 'xlsx';
 import StackedLineChartIcon from '@mui/icons-material/StackedLineChart';
 import { TextField } from '@mui/material';
 import FormTopVariables from './Forms/FormTopVariables';
-import { useRouter } from 'next/navigation';
 
 function getExcelColumnName(n) {
     let name = "";
@@ -27,7 +26,8 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     const [variablesTop, setVariablesTop] = useState(null);
     const [numeroVariablesTop, setNumeroVariablesTop] = useState('3');
     const [rutaExcel, setRutaExcel] = useState(null);
-    const router = useRouter();
+    const [valorCeldaSeleccionada, setValorCeldaSeleccionada] = useState(null);
+
 
   useEffect(() => {
     async function fetchExcelDocument() {
@@ -61,6 +61,7 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     if (idExcel) fetchExcelDocument();
   }, [idExcel]);
 
+
   const handleSheetChange = (e) => {
     const newSheet = e.target.value;
     setSelectedSheet(newSheet);
@@ -72,7 +73,32 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     }
   };
 
-  const handleCellClick = (rowIndex, colIndex, value) => {
+  const handleCellClick = async(rowIndex, colIndex, value) => {
+    setValorCeldaSeleccionada(null);
+    if (workbook && selectedSheet) {
+      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+      const worksheet = workbook.Sheets[selectedSheet]
+      const cell = worksheet[cellAddress];
+      
+      if (cell && cell.f) {
+  
+        const formulaUpper = cell.f.toUpperCase();
+        
+        if (formulaUpper.startsWith("VAN") || formulaUpper.startsWith("NPV")) {
+          console.log(`👉 La celda ${cellAddress} contiene una fórmula VAN/NPV`);
+          const VAB = formulaUpper?.split("+");
+          console.log(VAB);
+          
+          if (VAB?.length > 1) {
+            const response = await getDataCellValue(idExcel, selectedSheet, cellAddress);
+            const responseJSON = await response.json();
+            setValorCeldaSeleccionada(responseJSON?.valores);
+          }
+        }
+      } else {
+        console.log(`Celda ${cellAddress} no tiene fórmula`);
+      }
+    }
     setSelectedCell({ row: rowIndex + 1, col: colIndex + 1, value });
   };
 
@@ -82,16 +108,20 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     const responseExcelJSON = await responseExcel.json();
     
     const rutaExcel = responseExcelJSON?.ruta_excel;
-    const variablesTop = await extraerVariablesTop({
-        hoja : selectedSheet,
-        rutaExcel,
-        celda : letraCelda
-    }, numeroVariablesTop);
+    const dataVariable={
+      hoja : selectedSheet,
+      rutaExcel,
+      celda : letraCelda
+  }
+    console.log(dataVariable);
+    
+    const variablesTop = await extraerVariablesTop(dataVariable, numeroVariablesTop);
     
     setRutaExcel(rutaExcel);
     const variablesTopJSON = await variablesTop.json();
-    setVariablesTop(variablesTopJSON?.resultadosTop);
     console.log(variablesTopJSON);
+    
+    setVariablesTop(variablesTopJSON?.resultadosTop);
     
   }
   const handleSubmitProcess=async(formValues)=>{
@@ -199,12 +229,16 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
         </tbody>
     </table>
 </div>
-      {/* Información de la celda seleccionada */}
         {selectedCell && (
                 <section>
                     <div className="mt-4 p-3 bg-white shadow rounded-lg border">
                         <p><strong>Celda:</strong> Fila : {selectedCell.row}, Columna : {selectedCell.col}, Hoja : {selectedSheet}</p>
                         <p><strong>Valor:</strong> {selectedCell.value}</p>
+                        {valorCeldaSeleccionada &&
+                        <section>
+                          <p><strong>WACC :</strong> {valorCeldaSeleccionada[0]}</p>
+                          <p><strong>Inversion Inicial :</strong> {valorCeldaSeleccionada[valorCeldaSeleccionada?.length-1]*-1}</p>
+                        </section>}
                     </div>
                     <div className='w-full flex flex-row gap-4 items-center mt-4'>
                         <TextField

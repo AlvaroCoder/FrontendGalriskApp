@@ -1,8 +1,8 @@
-const URL_UPLOAD_EXCEL="http://localhost:8080/api/excel/upload";
-const URL_GET_DOCUMENT_EXCEL="http://localhost:8080/api/excel/";
-const URL_GET_DATA_EXCEL="http://localhost:8080/api/excel/usuario/"
-const URL_PROCESS_DATA ="http://localhost:8080/api/excel/processData";
-const URL_EXTRAER_VARIABLES="http://localhost:8080/api/excel/extraerResultadosTop/"
+const URL_UPLOAD_EXCEL="http://localhost:9090/api/excel/upload";
+const URL_GET_DOCUMENT_EXCEL="http://localhost:9090/api/excel/";
+const URL_GET_DATA_EXCEL="http://localhost:9090/api/excel/usuario/"
+const URL_PROCESS_DATA ="http://localhost:9090/api/excel/processData";
+const URL_EXTRAER_VARIABLES="http://localhost:9090/api/excel/extraerResultadosTop/"
 
 export async function uploadDocumentExcel(fileExcel=null) {
     if (!fileExcel) return;
@@ -51,6 +51,20 @@ export async function getDataExcelByIdExcel(idExcel) {
 
 export async function getDocumentExcel(idExcel="") {
     return await fetch(URL_GET_DOCUMENT_EXCEL+idExcel+"/download",{
+        method : 'GET',
+        mode : 'cors'
+    });
+};
+
+export async function getExcelsByIdUser(idUser="") {
+    return await fetch(URL_GET_DOCUMENT_EXCEL+"usuario/"+idUser,{
+        method : 'GET',
+        mode : 'cors'
+    });
+}
+
+export async function getDataCellValue(idExcel, nombreHoja,nombreCelda ) {
+    return await fetch(URL_GET_DOCUMENT_EXCEL+`valorCelda?idExcel=${idExcel}&nombreHoja=${nombreHoja}&nombreCelda=${nombreCelda}`,{
         method : 'GET',
         mode : 'cors'
     });

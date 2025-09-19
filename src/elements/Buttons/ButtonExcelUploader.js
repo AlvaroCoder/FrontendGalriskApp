@@ -27,6 +27,8 @@ export default function ButtonExcelUploader({
             });
             return;
         }
+        console.log(file);
+        
         await handleSubmitExcel(file);
     }
   return (
