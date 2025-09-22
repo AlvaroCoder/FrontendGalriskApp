@@ -14,12 +14,9 @@ export default function Page() {
     async function getUserSession() {
       try {
         setLoading(true);
-        const session = await getSession();
-        console.log(session);
-        
+        const session = await getSession();        
         const responseExcels = await getExcelsByIdUser(session?.id);
         const responseJSON = await responseExcels.json();
-        console.log(responseJSON);
         
         setExcelsData(responseJSON);
 

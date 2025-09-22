@@ -5,7 +5,6 @@ import HighchartsReact from 'highcharts-react-official';
 import { extraerValoresPorAtributo } from '@/common/extractValueEscenarios';
 
 export default function ViewEscenarios({ escenarios = [] }) {
-  console.log(escenarios);
   
   const columnas = escenarios.length > 0 ? Object.keys(escenarios[0]) : [];
 
@@ -72,8 +71,7 @@ export default function ViewEscenarios({ escenarios = [] }) {
 
   return (
     <section className="p-4 w-full grid grid-cols-3 gap-4">
-      {/* ✅ Tabla de Escenarios */}
-      <div className="col-span-1 border rounded-lg shadow bg-white p-3">
+      <div className="col-span-1 border border-nigth-blue rounded-lg shadow bg-white p-3">
         <h1 className="font-bold text-xl mb-3">Escenarios generados</h1>
         <div className="overflow-auto max-h-[400px]">
           <table className="w-full table-fixed border-collapse border border-gray-300">
@@ -109,7 +107,6 @@ export default function ViewEscenarios({ escenarios = [] }) {
         </div>
       </div>
 
-      {/* ✅ Histogramas */}
       <div className="col-span-2 border rounded-lg shadow bg-white p-3 overflow-auto max-h-[600px]">
         <h1 className="font-bold text-xl mb-3">Análisis Gráfico (Histogramas)</h1>
         {chartsData.length > 0 ? (

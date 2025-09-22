@@ -69,3 +69,14 @@ export async function getDataCellValue(idExcel, nombreHoja,nombreCelda ) {
         mode : 'cors'
     });
 }
+
+export async function getDataSimuladaRiqueza(dataBody, iteraciones) {
+    return await fetch(URL_GET_DOCUMENT_EXCEL+`simularRiqueza?iteraciones=${iteraciones}`,{
+        method : 'POST',
+        mode : 'cors',
+        headers : {
+            'Content-type' : 'application/json'
+        },
+        body : JSON.stringify(dataBody)
+    })
+}

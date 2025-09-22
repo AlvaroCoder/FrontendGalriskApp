@@ -42,6 +42,7 @@ export default function FormTopVariables({
           <thead className='bg-gray-100'>
             <tr>
               <th className='p-2 text-left'>Nombre de la Celda</th>
+              <th className='p-2 text-left'>Nombre de la Hoja</th>
               <th className='p-2 text-left'>Máximo</th>
               <th className='p-2 text-left'>Valor Actual</th>
               <th className='p-2 text-left'>Mínimo</th>
@@ -52,6 +53,7 @@ export default function FormTopVariables({
             {variablesTop.map((variable, index) => (
               <tr key={index} className='border-t'>
                 <td className='p-2 font-medium'>{variable['Celda Raíz']}</td>
+                <td className='p-2 font-medium'>{variable['Hoja Raíz']}</td>
                 <td className='p-2'>
                   <input
                     type='number'

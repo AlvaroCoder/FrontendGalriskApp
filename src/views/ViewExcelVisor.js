@@ -28,7 +28,6 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     const [rutaExcel, setRutaExcel] = useState(null);
     const [valorCeldaSeleccionada, setValorCeldaSeleccionada] = useState(null);
 
-
   useEffect(() => {
     async function fetchExcelDocument() {
       try {
@@ -45,9 +44,15 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
         const firstSheet = wb.SheetNames[0];
         setSelectedSheet(firstSheet);
 
+
         const worksheet = wb.Sheets[firstSheet];
-        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        const data = XLSX.utils.sheet_to_json(worksheet, { 
+          header: 1,
+          blankrows : true,
+        defval : "",
+       });
         setSheetData(data);
+
 
       } catch (error) {
         toast("No se logró extraer el documento", {
@@ -68,7 +73,10 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
   
     if (workbook) {
       const worksheet = workbook.Sheets[newSheet];
-      const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const data = XLSX.utils.sheet_to_json(worksheet, {    
+        header: 1,
+        blankrows : true,
+        defval : "", });
       setSheetData(data);
     }
   };
@@ -76,18 +84,15 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
   const handleCellClick = async(rowIndex, colIndex, value) => {
     setValorCeldaSeleccionada(null);
     if (workbook && selectedSheet) {
-      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex});
       const worksheet = workbook.Sheets[selectedSheet]
       const cell = worksheet[cellAddress];
-      
       if (cell && cell.f) {
   
         const formulaUpper = cell.f.toUpperCase();
         
         if (formulaUpper.startsWith("VAN") || formulaUpper.startsWith("NPV")) {
-          console.log(`👉 La celda ${cellAddress} contiene una fórmula VAN/NPV`);
           const VAB = formulaUpper?.split("+");
-          console.log(VAB);
           
           if (VAB?.length > 1) {
             const response = await getDataCellValue(idExcel, selectedSheet, cellAddress);
@@ -103,7 +108,7 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
   };
 
   const handleClickExtraerTopVariables=async()=>{
-    const letraCelda = String.fromCharCode(65 + selectedCell.col)+String(selectedCell.row);
+    const letraCelda = String.fromCharCode(64 + selectedCell.col)+String(selectedCell.row);
     const responseExcel = await getDataExcelByIdExcel(idExcel)
     const responseExcelJSON = await responseExcel.json();
     
@@ -112,23 +117,19 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
       hoja : selectedSheet,
       rutaExcel,
       celda : letraCelda
-  }
-    console.log(dataVariable);
-    
+  }    
     const variablesTop = await extraerVariablesTop(dataVariable, numeroVariablesTop);
     
     setRutaExcel(rutaExcel);
     const variablesTopJSON = await variablesTop.json();
-    console.log(variablesTopJSON);
     
     setVariablesTop(variablesTopJSON?.resultadosTop);
     
   }
   const handleSubmitProcess=async(formValues)=>{
-    console.log(formValues);
     try {
         setLoading(true);
-        const letraCelda = String.fromCharCode(65 + selectedCell.col)+String(selectedCell.row);
+        const letraCelda = String.fromCharCode(64 + selectedCell.col)+String(selectedCell.row);
 
         const newDataToSend = {
             rutaExcel,
@@ -136,14 +137,13 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
             hojaObjetivo : selectedSheet,
             variables : formValues,
             topResultados : variablesTop
-        }
-        console.log(newDataToSend);
-        
+        }        
         const responseProcess = await processData(newDataToSend);
-        console.log(responseProcess);
         
         const responseProcessJSON = await responseProcess.json();
-        handleSetEscenarios(responseProcessJSON?.escenarios);
+        console.log(responseProcessJSON);
+        
+        handleSetEscenarios(responseProcessJSON?.escenarios, responseProcessJSON?.resultadosVAN, valorCeldaSeleccionada[valorCeldaSeleccionada?.length-1]*-1);
 
         toast("Se proceso la data correctamente",{
             type : 'success',
@@ -232,7 +232,7 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
         {selectedCell && (
                 <section>
                     <div className="mt-4 p-3 bg-white shadow rounded-lg border">
-                        <p><strong>Celda:</strong> Fila : {selectedCell.row}, Columna : {selectedCell.col}, Hoja : {selectedSheet}</p>
+                        <p><strong>Celda:</strong> Fila : {selectedCell.row}, Columna : {selectedCell.col}, Celda : {String.fromCharCode(64+selectedCell.col)}, Hoja : {selectedSheet}</p>
                         <p><strong>Valor:</strong> {selectedCell.value}</p>
                         {valorCeldaSeleccionada &&
                         <section>
