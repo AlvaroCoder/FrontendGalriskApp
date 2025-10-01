@@ -24,7 +24,7 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     const [selectedCell, setSelectedCell] = useState(null); // Celda seleccionada
     const [workbook, setWorkbook] = useState(null); 
     const [variablesTop, setVariablesTop] = useState(null);
-    const [numeroVariablesTop, setNumeroVariablesTop] = useState('3');
+    const [numeroVariablesTop, setNumeroVariablesTop] = useState('10');
     const [rutaExcel, setRutaExcel] = useState(null);
     const [valorCeldaSeleccionada, setValorCeldaSeleccionada] = useState(null);
 

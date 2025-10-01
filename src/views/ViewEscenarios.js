@@ -8,17 +8,15 @@ export default function ViewEscenarios({ escenarios = [] }) {
   
   const columnas = escenarios.length > 0 ? Object.keys(escenarios[0]) : [];
 
-  // ✅ Generar histogramas
   const chartsData = useMemo(() => {
     if (escenarios.length === 0) return [];
 
     return columnas.map((col) => {
       const valores = extraerValoresPorAtributo(escenarios, col);
 
-      // ✅ Calcular bins para el histograma
       const min = Math.min(...valores);
       const max = Math.max(...valores);
-      const numBins = 10; // Número de intervalos
+      const numBins = 20; 
       const binSize = (max - min) / numBins;
 
       const bins = Array(numBins).fill(0);
@@ -26,7 +24,7 @@ export default function ViewEscenarios({ escenarios = [] }) {
         const index = Math.min(
           Math.floor((v - min) / binSize),
           numBins - 1
-        ); // Evitar overflow
+        ); 
         bins[index]++;
       });
 

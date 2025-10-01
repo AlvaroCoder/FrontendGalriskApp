@@ -3,6 +3,7 @@ const URL_GET_DOCUMENT_EXCEL="http://localhost:9090/api/excel/";
 const URL_GET_DATA_EXCEL="http://localhost:9090/api/excel/usuario/"
 const URL_PROCESS_DATA ="http://localhost:9090/api/excel/processData";
 const URL_EXTRAER_VARIABLES="http://localhost:9090/api/excel/extraerResultadosTop/"
+const BASE_URL_EXCEL = "http://localhost:9090/api/excel/";
 
 export async function uploadDocumentExcel(fileExcel=null) {
     if (!fileExcel) return;
@@ -78,5 +79,12 @@ export async function getDataSimuladaRiqueza(dataBody, iteraciones) {
             'Content-type' : 'application/json'
         },
         body : JSON.stringify(dataBody)
+    })
+}
+
+export async function deleteExcel(idExcel) {
+    return await fetch(BASE_URL_EXCEL+ idExcel,{
+        method : 'DELETE',
+        mode : 'cors'
     })
 }
