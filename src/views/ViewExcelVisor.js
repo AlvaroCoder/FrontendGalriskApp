@@ -151,6 +151,8 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
         });
         
     } catch (error) {
+      console.log(error);
+      
         toast("No se pudo procesar la data",{
             type : 'error',
             position : 'bottom-center'

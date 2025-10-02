@@ -34,13 +34,18 @@ export default function FormTopVariables({
   };
 
   const handleSubmit =async (e) => {
-    e.preventDefault();
-    const selectedValues = formValues
-    .filter((item) => item.enabled)
-    .map(({ enabled, ...rest }) => rest);
-    console.log(selectedValues);
-    
-    await handleSubmitProcess(selectedValues);
+    try {
+      e.preventDefault();
+      const selectedValues = formValues
+      .filter((item) => item.enabled)
+      .map(({ enabled, ...rest }) => rest);
+      console.log(selectedValues);
+      
+      await handleSubmitProcess(selectedValues);
+    } catch (err) {
+      console.log(err);
+      
+    } 
   };
 
   return (
