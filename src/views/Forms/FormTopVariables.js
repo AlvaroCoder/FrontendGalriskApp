@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Checkbox, FormControl, FormControlLabel } from '@mui/material';
 import ChangeHistoryIcon from '@mui/icons-material/ChangeHistory';
+
+
 export default function FormTopVariables({ 
     variablesTop = [],
     handleSubmitProcess=async()=>{},
@@ -39,21 +41,20 @@ export default function FormTopVariables({
       const selectedValues = formValues
       .filter((item) => item.enabled)
       .map(({ enabled, ...rest }) => rest);
-      console.log(selectedValues);
       
       await handleSubmitProcess(selectedValues);
     } catch (err) {
       console.log(err);
-      
     } 
   };
+
 
   return (
     <div className='w-full p-4 rounded-lg shadow bg-white h-fit mt-4 flex flex-col items-center'>
       <h1 className='font-bold text-xl mb-4'>
         Seleccione cuales serían las variables más importantes
       </h1>
-
+      
       <form onSubmit={handleSubmit} className='w-full overflow-x-auto'>
         <table className='w-full border border-gray-300 rounded-lg'>
           <thead className="bg-gray-100 sticky top-0 z-10">

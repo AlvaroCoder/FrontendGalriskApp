@@ -36,7 +36,8 @@ function ButtonUser({
         <Upload/> Subir tu proyecto
       </button>
       <button
-      className="px-4 py-2 border border-white rounded hover:bg-blue-950  transition"
+        className="px-4 py-2 border border-white rounded hover:bg-blue-950  transition"
+        onClick={()=>router.push("/dashboard/profile")}
       >
        <p className='flex flex-row gap-2'><User2/> <span>{username}</span></p>
       </button>

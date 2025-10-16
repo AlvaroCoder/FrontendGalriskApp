@@ -6,6 +6,62 @@ import * as XLSX from 'xlsx';
 import StackedLineChartIcon from '@mui/icons-material/StackedLineChart';
 import { TextField } from '@mui/material';
 import FormTopVariables from './Forms/FormTopVariables';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
+import PercentIcon from '@mui/icons-material/Percent';
+
+function DialogAdditionalDetails({ open = false, handleSubmit = () => { } }) {
+  const [data, setData] = useState({
+    riqueza: '',
+    tasa: ''
+  });
+
+  const handleChange = (e) => { 
+    setData({
+      ...data,
+      [e.target.name] : e.target.value
+    })
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogContent >
+        <DialogHeader>
+          <h1>Ingresa datos restantes</h1>
+        </DialogHeader>
+          <form onSubmit={()=>handleSubmit(data)} className='w-full flex flex-col gap-4 mt-4'>
+            <div>
+              <label htmlFor='riqueza'>Ingresa la Riqueza Inicial : </label>
+            <div className='flex flex-row items-center gap-2  '>
+              <p>S/. </p>
+                <input
+                name='riqueza'
+                type="number"
+                className='border p-2 rounded-lg w-full'
+                onChange={handleChange}
+              />
+            </div>
+            </div>
+            <div>
+              <label htmlFor='tasa'>Ingresa la Tasa de Interés (en decimal) : </label>
+            <div className='flex flex-row items-center gap-2  '>
+              <p>
+                <PercentIcon fontSize='small'/>
+              </p>
+                <input
+                name='tasa'
+                type="number"
+                step="0.01"
+                className='border p-2 rounded-lg w-full'
+                onChange={handleChange}
+              />
+              </div>
+            </div>
+            <button type='submit' className='bg-nigth-blue hover:bg-indigo-950 text-white p-2 rounded-lg mt-4 w-full'>Guardar</button>
+          </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
 
 function getExcelColumnName(n) {
     let name = "";
@@ -27,7 +83,9 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     const [numeroVariablesTop, setNumeroVariablesTop] = useState('10');
     const [rutaExcel, setRutaExcel] = useState(null);
     const [valorCeldaSeleccionada, setValorCeldaSeleccionada] = useState(null);
-
+    const [openDetailData, setOpenDetailData] = useState(false);
+    const [formValuesData, setFormValuesData] = useState(null);
+  
   useEffect(() => {
     async function fetchExcelDocument() {
       try {
@@ -97,6 +155,8 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
           if (VAB?.length > 1) {
             const response = await getDataCellValue(idExcel, selectedSheet, cellAddress);
             const responseJSON = await response.json();
+            console.log(responseJSON);
+            
             setValorCeldaSeleccionada(responseJSON?.valores);
           }
         }
@@ -126,22 +186,23 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     setVariablesTop(variablesTopJSON?.resultadosTop);
     
   }
-  const handleSubmitProcess=async(formValues)=>{
-    try {
-        setLoading(true);
-        const letraCelda = String.fromCharCode(64 + selectedCell.col)+String(selectedCell.row);
+
+  const handleSubmitAdditionDetails = async (e) => { 
+    try { 
+      setLoading(true);
+      const letraCelda = String.fromCharCode(64 + selectedCell.col)+String(selectedCell.row);
 
         const newDataToSend = {
             rutaExcel,
             celdaObjetivo : letraCelda,
             hojaObjetivo : selectedSheet,
-            variables : formValues,
-            topResultados : variablesTop
+            variables : formValuesData,
+            topResultados: variablesTop,
+            tasaInteres : 0
         }        
         const responseProcess = await processData(newDataToSend);
         
         const responseProcessJSON = await responseProcess.json();
-        console.log(responseProcessJSON);
         
         handleSetEscenarios(responseProcessJSON?.escenarios, responseProcessJSON?.resultadosVAN, valorCeldaSeleccionada[valorCeldaSeleccionada?.length-1]*-1);
 
@@ -150,20 +211,25 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
             position : 'bottom-right'
         });
         
-    } catch (error) {
-      console.log(error);
-      
+      setOpenDetailData(false);
+    } catch (err) {
         toast("No se pudo procesar la data",{
             type : 'error',
             position : 'bottom-center'
         })
     } finally {
-        setLoading(false)
+      setLoading(false);
     }
   }
 
+  const handleSubmitProcess=async(formValues)=>{
+    setFormValuesData(formValues)
+      setOpenDetailData(true);
+  }
+
   return (
-<div className="p-4 bg-gray-50 rounded-lg shadow-md">
+    <div className="p-4 bg-gray-50 rounded-lg shadow-md">
+      <DialogAdditionalDetails open={openDetailData} handleSubmit={handleSubmitAdditionDetails} />
   {loading && <p className="text-center text-gray-600">Cargando Excel...</p>}
 
   {!loading && sheetNames.length > 0 && (
