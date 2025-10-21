@@ -6,62 +6,7 @@ import * as XLSX from 'xlsx';
 import StackedLineChartIcon from '@mui/icons-material/StackedLineChart';
 import { TextField } from '@mui/material';
 import FormTopVariables from './Forms/FormTopVariables';
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
-import PercentIcon from '@mui/icons-material/Percent';
-
-function DialogAdditionalDetails({ open = false, handleSubmit = () => { } }) {
-  const [data, setData] = useState({
-    riqueza: '',
-    tasa: ''
-  });
-
-  const handleChange = (e) => { 
-    setData({
-      ...data,
-      [e.target.name] : e.target.value
-    })
-  }
-
-  return (
-    <Dialog open={open}>
-      <DialogContent >
-        <DialogHeader>
-          <h1>Ingresa datos restantes</h1>
-        </DialogHeader>
-          <form onSubmit={()=>handleSubmit(data)} className='w-full flex flex-col gap-4 mt-4'>
-            <div>
-              <label htmlFor='riqueza'>Ingresa la Riqueza Inicial : </label>
-            <div className='flex flex-row items-center gap-2  '>
-              <p>S/. </p>
-                <input
-                name='riqueza'
-                type="number"
-                className='border p-2 rounded-lg w-full'
-                onChange={handleChange}
-              />
-            </div>
-            </div>
-            <div>
-              <label htmlFor='tasa'>Ingresa la Tasa de Interés (en decimal) : </label>
-            <div className='flex flex-row items-center gap-2  '>
-              <p>
-                <PercentIcon fontSize='small'/>
-              </p>
-                <input
-                name='tasa'
-                type="number"
-                step="0.01"
-                className='border p-2 rounded-lg w-full'
-                onChange={handleChange}
-              />
-              </div>
-            </div>
-            <button type='submit' className='bg-nigth-blue hover:bg-indigo-950 text-white p-2 rounded-lg mt-4 w-full'>Guardar</button>
-          </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+import DialogAdditionalDetails from '@/elements/Dialogs/DialogAdditionalDetails';
 
 function getExcelColumnName(n) {
     let name = "";
@@ -187,7 +132,9 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
     
   }
 
-  const handleSubmitAdditionDetails = async (e) => { 
+  const handleSubmitAdditionDetails = async (data) => { 
+ 
+    
     try { 
       setLoading(true);
       const letraCelda = String.fromCharCode(64 + selectedCell.col)+String(selectedCell.row);
@@ -198,13 +145,20 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
             hojaObjetivo : selectedSheet,
             variables : formValuesData,
             topResultados: variablesTop,
-            tasaInteres : 0
-        }        
+            tasaInteres : parseFloat(data?.tasa)
+        }       
+      
         const responseProcess = await processData(newDataToSend);
         
         const responseProcessJSON = await responseProcess.json();
+        console.log(responseProcessJSON);
         
-        handleSetEscenarios(responseProcessJSON?.escenarios, responseProcessJSON?.resultadosVAN, valorCeldaSeleccionada[valorCeldaSeleccionada?.length-1]*-1);
+      handleSetEscenarios(
+        responseProcessJSON?.escenarios,
+        responseProcessJSON?.resultadosVAN,
+        valorCeldaSeleccionada[valorCeldaSeleccionada?.length - 1] * -1,
+        parseInt(data?.riqueza)
+      );
 
         toast("Se proceso la data correctamente",{
             type : 'success',
@@ -213,12 +167,20 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
         
       setOpenDetailData(false);
     } catch (err) {
+      console.log(err);
+      
         toast("No se pudo procesar la data",{
             type : 'error',
             position : 'bottom-center'
         })
     } finally {
       setLoading(false);
+    }
+  }
+
+  const handleOpen = () => {
+    if (openDetailData) {
+      setOpenDetailData(false);
     }
   }
 
@@ -229,12 +191,15 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
 
   return (
     <div className="p-4 bg-gray-50 rounded-lg shadow-md">
-      <DialogAdditionalDetails open={openDetailData} handleSubmit={handleSubmitAdditionDetails} />
+      <DialogAdditionalDetails
+        open={openDetailData}
+        handleSubmit={handleSubmitAdditionDetails}
+        handleChangeOpen={handleOpen}
+      />
   {loading && <p className="text-center text-gray-600">Cargando Excel...</p>}
 
   {!loading && sheetNames.length > 0 && (
     <>
-      {/* Selector de hoja */}
       <div className="mb-4 flex items-center gap-3">
         <label className="font-semibold">Selecciona hoja:</label>
         <select
@@ -248,7 +213,6 @@ export default function ViewExcelVisor({ idExcel = "" , handleSetEscenarios=()=>
         </select>
       </div>
 
-      {/* Tabla del Excel con estilo tipo Excel */}
       <div className="overflow-auto max-h-[500px] border border-gray-300 rounded-lg">
     <table className="table-fixed border-collapse w-full">
         <thead className="sticky top-0 bg-gray-200 z-10">

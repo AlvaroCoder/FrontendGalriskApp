@@ -11,13 +11,15 @@ function RenderApp() {
   const [escenarios, setEscenarios] = useState(null);
   const [inversionInicial, setInversionInicial] = useState(0);
   const [vanSimulados, setVanSimulados] = useState(0);
-
+  const [riquezaInicial, setRiquezaInicial] = useState(0);
+  
   const idExcel = search.get('idExcel');
 
-  const handleSetEscenarios = (escen, vans, invInicial) => {
+  const handleSetEscenarios = (escen, vans, invInicial, riqInicial) => {
     setEscenarios(escen);
     setVanSimulados(vans);
     setInversionInicial(invInicial);
+    setRiquezaInicial(riqInicial);
   };
 
   return (
@@ -27,7 +29,11 @@ function RenderApp() {
       ) : (
         <div className="space-y-6">
           <ViewEscenarios escenarios={escenarios} />
-          <ViewCellValues inversionInicial={inversionInicial} vanSimulados={vanSimulados} />
+            <ViewCellValues
+              inversionInicial={inversionInicial}
+              vanSimulados={vanSimulados}
+              riquezaInicial={riquezaInicial}
+            />
         </div>
       )}
     </main>

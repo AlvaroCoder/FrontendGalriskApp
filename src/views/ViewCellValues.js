@@ -47,7 +47,10 @@ const RhoCharts = dynamic(() => import('@/views/elements/RhoCharts'), {
   ),
 });
 
-export default function ViewCellValues({ inversionInicial = 0, vanSimulados = [] }) {
+export default function ViewCellValues({
+  riquezaInicial = 0,
+  inversionInicial = 0,
+  vanSimulados = [] }) {
   const [charData, setCharData] = useState([]);
   const [riquezaInicialData, setRiquezaInicialData] = useState([]);
   const [rhoData, setRhoData] = useState([]);
@@ -116,7 +119,7 @@ export default function ViewCellValues({ inversionInicial = 0, vanSimulados = []
     }
 
     getDataSimuladosRiqueza();
-  }, [inversionInicial, vanSimulados]);
+  }, [riquezaInicial, inversionInicial, vanSimulados]);
 
   const mainChart = useMemo(() => (
     <ResponsiveContainer width="100%" height={400}>
