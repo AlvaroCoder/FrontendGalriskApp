@@ -1,6 +1,5 @@
 'use client';
 import React, { useMemo } from 'react';
-import dynamic from 'next/dynamic';
 
 import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';

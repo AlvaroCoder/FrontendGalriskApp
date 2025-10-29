@@ -13,6 +13,8 @@ import StackedLineChartIcon from "@mui/icons-material/StackedLineChart";
 import { TextField } from "@mui/material";
 import FormTopVariables from "./Forms/FormTopVariables";
 import DialogAdditionalDetails from "@/elements/Dialogs/DialogAdditionalDetails";
+import { useSimulation } from "@/context/SimulacionContext";
+import { useRouter } from "next/navigation";
 
 function getExcelColumnName(n) {
   let name = "";
@@ -30,7 +32,6 @@ const colors = {
 };
 export default function ViewExcelVisor({
   idExcel = "",
-  handleSetEscenarios = () => {},
 }) {
   const [loading, setLoading] = useState(false);
   const [sheetNames, setSheetNames] = useState([]);
@@ -44,6 +45,9 @@ export default function ViewExcelVisor({
   const [valorCeldaSeleccionada, setValorCeldaSeleccionada] = useState(null);
   const [openDetailData, setOpenDetailData] = useState(false);
   const [formValuesData, setFormValuesData] = useState(null);
+
+  const { setSimulacionResults } = useSimulation();
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchExcelDocument() {
@@ -80,12 +84,11 @@ export default function ViewExcelVisor({
     if (idExcel) fetchExcelDocument();
   }, [idExcel]);
 
-  const handleSheetChange = (e) => {
-    const newSheet = e.target.value;
-    setSelectedSheet(newSheet);
+  const handleSheetChange = (sheetName) => {
+    setSelectedSheet(sheetName);
 
     if (workbook) {
-      const worksheet = workbook.Sheets[newSheet];
+      const worksheet = workbook.Sheets[sheetName];
       const data = XLSX.utils.sheet_to_json(worksheet, {
         header: 1,
         blankrows: true,
@@ -153,7 +156,7 @@ export default function ViewExcelVisor({
     try {
       setLoading(true);
       const letraCelda =
-        String.fromCharCode(64 + selectedCell.col) + String(selectedCell.row);
+      String.fromCharCode(64 + selectedCell.col) + String(selectedCell.row);
 
       const newDataToSend = {
         rutaExcel,
@@ -161,20 +164,27 @@ export default function ViewExcelVisor({
         hojaObjetivo: selectedSheet,
         variables: formValuesData,
         topResultados: variablesTop,
-        tasaInteres: parseFloat(data?.tasa),
+        tasaInteres: parseFloat(data?.tasa) / 100,
       };
 
       const responseProcess = await processData(newDataToSend);
 
       const responseProcessJSON = await responseProcess.json();
-      console.log(responseProcessJSON);
 
-      handleSetEscenarios(
-        responseProcessJSON?.escenarios,
-        responseProcessJSON?.resultadosVAN,
-        valorCeldaSeleccionada[valorCeldaSeleccionada?.length - 1] * -1,
-        parseInt(data?.riqueza)
-      );
+      const simulationData = {
+        escenarios: responseProcessJSON?.escenarios,
+        resultadosVAN: responseProcessJSON?.resultadosVAN,
+        inversionInicial: valorCeldaSeleccionada[valorCeldaSeleccionada?.length - 1] * -1,
+        riqueza: parseInt(data?.riqueza),
+        metadata: {
+          celda: letraCelda,
+          hoja: selectedSheet,
+          variables: formValuesData,
+          tasaInteres: parseFloat(data?.tasa) / 100
+        }
+      };
+
+      setSimulacionResults(simulationData);
 
       toast("Se proceso la data correctamente", {
         type: "success",
@@ -182,6 +192,9 @@ export default function ViewExcelVisor({
       });
 
       setOpenDetailData(false);
+
+      router.push("/dashboard/simulacion");
+
     } catch (err) {
       console.log(err);
 
@@ -279,28 +292,34 @@ export default function ViewExcelVisor({
                       px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
                       flex items-center gap-2 min-w-[120px] justify-center
                       border-2 hover:scale-105 active:scale-95
-                      ${selectedSheet === sheet 
-                        ? 'bg-white border-accent shadow-md text-gray-800 font-semibold' 
-                        : 'bg-gray-200 border-transparent text-gray-600 hover:bg-gray-300'
+                      ${
+                        selectedSheet === sheet
+                          ? "bg-white border-accent shadow-md text-gray-800 font-semibold"
+                          : "bg-gray-200 border-transparent text-gray-600 hover:bg-gray-300"
                       }
                     `}
                     style={{
-                      borderColor: selectedSheet === sheet ? colors.accent : undefined
+                      borderColor:
+                        selectedSheet === sheet ? colors.accent : undefined,
                     }}
                   >
-                    <div className={`
+                    <div
+                      className={`
                       w-2 h-2 rounded-full
-                      ${selectedSheet === sheet ? 'bg-accent' : 'bg-gray-400'}
-                    `} style={{
-                      backgroundColor: selectedSheet === sheet ? colors.accent : undefined
-                    }} />
+                      ${selectedSheet === sheet ? "bg-accent" : "bg-gray-400"}
+                    `}
+                      style={{
+                        backgroundColor:
+                          selectedSheet === sheet ? colors.accent : undefined,
+                      }}
+                    />
                     <span className="truncate">{sheet}</span>
                   </button>
                 ))}
               </div>
             </div>
 
-                        <div className="overflow-auto max-h-[500px] bg-white">
+            <div className="overflow-auto max-h-[500px] bg-white">
               <table className="min-w-full border-collapse">
                 <thead className="sticky top-0 z-20">
                   <tr>
@@ -326,89 +345,149 @@ export default function ViewExcelVisor({
                       <td className="bg-gray-50 border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 text-center sticky left-0 z-10 group-hover:bg-gray-100">
                         {i + 1}
                       </td>
-                      {Array.from({ length: sheetData[0]?.length || 0 }).map((_, j) => {
-                        const cellValue = row[j] || "";
-                        const isSelected = selectedCell?.row === i + 1 && selectedCell?.col === j + 1;
+                      {Array.from({ length: sheetData[0]?.length || 0 }).map(
+                        (_, j) => {
+                          const cellValue = row[j] || "";
+                          const isSelected =
+                            selectedCell?.row === i + 1 &&
+                            selectedCell?.col === j + 1;
 
-                        const formattedCell = typeof cellValue === "number" 
-                          ? cellValue.toFixed(2) 
-                          : cellValue;
+                          const formattedCell =
+                            typeof cellValue === "number"
+                              ? cellValue.toFixed(2)
+                              : cellValue;
 
-                        return (
-                          <td
-                            key={j}
-                            className={`
+                          return (
+                            <td
+                              key={j}
+                              className={`
                               min-w-[120px] border border-gray-300 px-4 py-3 text-sm cursor-pointer
                               transition-all duration-150 hover:bg-blue-50/50
-                              ${isSelected 
-                                ? 'bg-accent/20 ring-2 ring-accent font-semibold' 
-                                : 'bg-white'
+                              ${
+                                isSelected
+                                  ? "bg-accent/20 ring-2 ring-accent font-semibold"
+                                  : "bg-white"
                               }
                             `}
-                            onClick={() => handleCellClick(i, j, cellValue)}
-                            style={{
-                              backgroundColor: isSelected ? `${colors.accent}20` : undefined,
-                              borderColor: isSelected ? colors.accent : undefined
-                            }}
-                          >
-                            <div className="whitespace-nowrap overflow-hidden text-ellipsis">
-                              {formattedCell}
-                            </div>
-                          </td>
-                        );
-                      })}
+                              onClick={() => handleCellClick(i, j, cellValue)}
+                              style={{
+                                backgroundColor: isSelected
+                                  ? `${colors.accent}20`
+                                  : undefined,
+                                borderColor: isSelected
+                                  ? colors.accent
+                                  : undefined,
+                              }}
+                            >
+                              <div className="whitespace-nowrap overflow-hidden text-ellipsis">
+                                {formattedCell}
+                              </div>
+                            </td>
+                          );
+                        }
+                      )}
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
             {selectedCell && (
-               <div className="border-t border-gray-200 bg-white">
-              <section>
-                <div className="mt-4 p-3 bg-white shadow rounded-lg border">
-                  <p>
-                    <strong>Celda:</strong> Fila : {selectedCell.row}, Columna :{" "}
-                    {selectedCell.col}, Celda :{" "}
-                    {String.fromCharCode(64 + selectedCell.col)}, Hoja :{" "}
-                    {selectedSheet}
-                  </p>
-                  <p>
-                    <strong>Valor:</strong> {selectedCell.value}
-                  </p>
-                  {valorCeldaSeleccionada && (
-                    <section>
-                      <p>
-                        <strong>WACC :</strong> {valorCeldaSeleccionada[0]}
-                      </p>
-                      <p>
-                        <strong>Inversion Inicial :</strong>{" "}
-                        {valorCeldaSeleccionada[
-                          valorCeldaSeleccionada?.length - 1
-                        ] * -1}
-                      </p>
-                    </section>
-                  )}
+              <div className="border-t border-gray-200 bg-white">
+                <div className="px-6 py-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <div
+                          className="w-2 h-2 bg-accent rounded-full"
+                          style={{ backgroundColor: colors.accent }}
+                        />
+                        Información de la Celda
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Posición:</span>
+                          <span className="font-medium">
+                            {String.fromCharCode(64 + selectedCell.col)}
+                            {selectedCell.row}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Fila:</span>
+                          <span className="font-medium">
+                            {selectedCell.row}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Columna:</span>
+                          <span className="font-medium">
+                            {String.fromCharCode(64 + selectedCell.col)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Hoja:</span>
+                          <span className="font-medium">{selectedSheet}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Valor:</span>
+                          <span className="font-medium text-green-600">
+                            {selectedCell.value}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {valorCeldaSeleccionada && (
+                      <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                        <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                          Análisis Financiero
+                        </h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">WACC:</span>
+                            <span className="font-medium text-green-600">
+                              {valorCeldaSeleccionada[0]}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">
+                              Inversión Inicial:
+                            </span>
+                            <span className="font-medium text-green-600">
+                              {valorCeldaSeleccionada[
+                                valorCeldaSeleccionada?.length - 1
+                              ] * -1}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-6 p-4 bg-white border border-gray-200 rounded-xl">
+                    <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+                      <TextField
+                        className="bg-white flex-1"
+                        label="Número de Variables Top"
+                        type="number"
+                        value={numeroVariablesTop}
+                        onChange={(e) => setNumeroVariablesTop(e.target.value)}
+                        size="small"
+                      />
+                      <button
+                        disabled={loading}
+                        onClick={handleClickExtraerTopVariables}
+                        className="w-full lg:w-auto px-6 py-3 rounded-xl transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 hover:scale-105 active:scale-95"
+                        style={{
+                          backgroundColor: colors.accent,
+                          color: colors.primary,
+                        }}
+                      >
+                        <StackedLineChartIcon />
+                        Extraer Variables Top
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="w-full flex flex-row gap-4 items-center mt-4">
-                  <TextField
-                    className="bg-white"
-                    label="Variables"
-                    type="number"
-                    value={numeroVariablesTop}
-                    onChange={(e) => setNumeroVariablesTop(e.target.value)}
-                  />
-                  <button
-                    disabled={loading}
-                    onClick={handleClickExtraerTopVariables}
-                    className="text-white bg-yellow-intense cursor-pointer p-4 rounded-sm shadow hover:bg-amber-500 flex justify-center w-full "
-                  >
-                    <p className="flex flex-row items-center gap-4">
-                      <StackedLineChartIcon /> Extraer Variables Top
-                    </p>
-                  </button>
-                </div>
-              </section>
-                </div>
+              </div>
             )}
           </div>
         )}

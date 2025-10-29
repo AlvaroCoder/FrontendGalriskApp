@@ -1,6 +1,6 @@
 'use client'
 import { getSession } from '@/authentication/lib';
-import { Loader2, Upload, User2 } from 'lucide-react';
+import { ChevronRight, Loader2, Upload, User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
@@ -30,16 +30,12 @@ function ButtonUser({
   const router = useRouter();
   return(
     <div className='flex flex-row gap-4'>
-      <button 
-      onClick={()=>router.push("/dashboard/upload")}
-      className='flex flex-row gap-4 bg-yellow text-nigth-blue items-center bg-yellow-intense hover:bg-yellow-400 p-4 rounded-sm font-bold'>
-        <Upload/> Subir tu proyecto
-      </button>
       <button
-        className="px-4 py-2 border border-white rounded hover:bg-blue-950  transition"
-        onClick={()=>router.push("/dashboard/profile")}
-      >
-       <p className='flex flex-row gap-2'><User2/> <span>{username}</span></p>
+        onClick={()=>router.push("/dashboard")}
+        className='bg-yellow-intense text-nigth-blue p-4 rounded-lg hover:bg-orange-400 transition-all duration-300 font-bold'>
+        <p className='flex flex-row items-center gap-4'>
+           Ver Dashboard <ChevronRight fontSize={"small"} />
+       </p>
       </button>
     </div>
   )
