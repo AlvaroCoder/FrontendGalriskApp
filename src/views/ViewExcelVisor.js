@@ -170,11 +170,13 @@ export default function ViewExcelVisor({
       const responseProcess = await processData(newDataToSend);
 
       const responseProcessJSON = await responseProcess.json();
-
+      console.log(responseProcessJSON);
+      
       const simulationData = {
         escenarios: responseProcessJSON?.escenarios,
         resultadosVAN: responseProcessJSON?.resultadosVAN,
         inversionInicial: valorCeldaSeleccionada[valorCeldaSeleccionada?.length - 1] * -1,
+        vanActual : responseProcessJSON?.VANActual,
         riqueza: parseInt(data?.riqueza),
         metadata: {
           celda: letraCelda,
@@ -294,7 +296,7 @@ export default function ViewExcelVisor({
                       border-2 hover:scale-105 active:scale-95
                       ${
                         selectedSheet === sheet
-                          ? "bg-white border-accent shadow-md text-gray-800 font-semibold"
+                          ? "bg-white border-accent shadow-md text-nigth-blue font-semibold"
                           : "bg-gray-200 border-transparent text-gray-600 hover:bg-gray-300"
                       }
                     `}

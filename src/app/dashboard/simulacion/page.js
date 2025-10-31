@@ -1,8 +1,13 @@
 'use client';
 import { useSimulation } from '@/context/SimulacionContext';
 import { getDataSimuladaRiqueza } from '@/lib/apiConnection';
+import HistogramChart from '@/views/Charts/HistogramChart';
+import LineChartVan from '@/views/Charts/LineChartVan';
+import RhoVariablesChart from '@/views/Charts/RhoChart';
+import VariablesChart from '@/views/Charts/VariablesChart';
 import LoadingPage from '@/views/Loading/LoadingPage';
 import { Download, BarChart3, PieChart, TrendingUp, Calendar, Users, Target } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 
@@ -12,7 +17,6 @@ const colors = {
   background: "#F5F6FA",
 };
 
-// Componente de Tarjeta Métrica
 const MetricCard = ({ title, value, subtitle, icon, color = "blue" }) => (
   <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 group">
     <div className="flex items-center justify-between">
@@ -86,56 +90,6 @@ const SidebarNavigation = ({ sections, activeSection, onSectionChange }) => (
   </div>
 );
 
-const HistogramChart = ({ data, title }) => (
-  <div className="bg-white rounded-2xl shadow-lg p-6">
-    <div className="flex items-center justify-between mb-6">
-      <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <TrendingUp className="w-4 h-4" />
-        <span>Frecuencia Acumulada</span>
-      </div>
-    </div>
-    <div className="h-80 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center">
-      <div className="text-center">
-        <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-        <p className="text-gray-500">Histograma de VAN Simulados</p>
-        <p className="text-sm text-gray-400 mt-1">
-          {data?.length || 0} puntos de datos
-        </p>
-      </div>
-    </div>
-    <div className="grid grid-cols-4 gap-4 mt-6">
-      <div className="text-center">
-        <p className="text-sm text-gray-600">Mínimo</p>
-        <p className="font-semibold text-gray-800">
-          {data ? Math.min(...data).toFixed(2) : '0.00'}
-        </p>
-      </div>
-      <div className="text-center">
-        <p className="text-sm text-gray-600">Máximo</p>
-        <p className="font-semibold text-gray-800">
-          {data ? Math.max(...data).toFixed(2) : '0.00'}
-        </p>
-      </div>
-      <div className="text-center">
-        <p className="text-sm text-gray-600">Promedio</p>
-        <p className="font-semibold text-gray-800">
-          {data ? (data.reduce((a, b) => a + b, 0) / data.length).toFixed(2) : '0.00'}
-        </p>
-      </div>
-      <div className="text-center">
-        <p className="text-sm text-gray-600">Desviación</p>
-        <p className="font-semibold text-gray-800">
-          {data ? 
-            Math.sqrt(data.reduce((sq, n) => sq + Math.pow(n - data.reduce((a, b) => a + b, 0) / data.length, 2), 0) / data.length).toFixed(2) 
-            : '0.00'
-          }
-        </p>
-      </div>
-    </div>
-  </div>
-);
-
 const DistributionChart = ({ title, data }) => (
   <div className="bg-white rounded-2xl shadow-lg p-6">
     <h3 className="text-xl font-bold text-gray-800 mb-6">{title}</h3>
@@ -156,8 +110,11 @@ export default function Page() {
   const [downloading, setDownloading] = useState(false);
   const [activeSection, setActiveSection] = useState('resumen');
   const [processedData, setProcessedData] = useState(null);
-  
+  const [dataVanActual, setDataVanActual] = useState(null);
+  const [escenriosData, setEscenriosData] = useState(null);
+
   const { simulacionData } = useSimulation();
+  const router = useRouter();
 
   const navigationSections = [
     { id: 'resumen', title: 'Resumen General', icon: BarChart3 },
@@ -170,18 +127,30 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchData() {
-      if (!simulacionData) return;
+      if (!simulacionData) {
+        router.back();
+        return;
+      };
 
       try {
         setLoading(true);
-        const { riqueza: riquezaInicial, resultadosVAN, inversionInicial } = simulacionData;
+        const {
+          riqueza: riquezaInicial,
+          resultadosVAN,
+          inversionInicial,
+          vanActual,
+          escenarios
+        } = simulacionData;
+
         const response = await getDataSimuladaRiqueza({
           riquezaInicial,
           inversionInicial,
           resultadosVAN
         }, 10000);
         const responseJSON = await response.json();
-        
+
+        setDataVanActual(vanActual);
+        setEscenriosData(escenarios);
         setProcessedData(responseJSON);
         
       } catch (err) {
@@ -194,12 +163,12 @@ export default function Page() {
       }
     } 
     fetchData();
-  }, [simulacionData]);
+  }, [simulacionData, router]);
 
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulación
+      await new Promise(resolve => setTimeout(resolve, 2000));
       toast("Archivo Excel generado correctamente", {
         type: 'success',
         position: 'bottom-right'
@@ -251,11 +220,19 @@ export default function Page() {
                     Escenarios Simulados
                   </h2>
                   <p className="text-gray-600 mb-4">
-                    Se generaron <span className="font-semibold text-accent">10,000 escenarios</span> 
+                    Se generaron <span className="font-semibold" style={{color : colors.accent}}>10,000 escenarios</span> 
                     {' '}con análisis de sensibilidad del VAN
                   </p>
-                  
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="">
+                  <DownloadButton 
+                    onClick={handleDownload} 
+                    loading={downloading} 
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Incluye todos los datos y análisis
+                  </p>
+                </div>
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     <MetricCard
                       title="Total Escenarios"
                       value="10,000"
@@ -277,40 +254,27 @@ export default function Page() {
                       icon={<TrendingUp className="w-6 h-6" />}
                       color="orange"
                     />
-                    <MetricCard
-                      title="Tasa Éxito"
-                      value="85.2%"
-                      subtitle="VAN positivo"
-                      icon={<BarChart3 className="w-6 h-6" />}
-                      color="purple"
-                    />
                   </div>
                 </div>
                 
-                <div className="lg:text-right">
-                  <DownloadButton 
-                    onClick={handleDownload} 
-                    loading={downloading} 
-                  />
-                  <p className="text-xs text-gray-500 mt-2">
-                    Incluye todos los datos y análisis
-                  </p>
-                </div>
+
               </div>
             </div>
 
             {/* Contenido Dinámico basado en la sección activa */}
             <div className="space-y-6">
               {activeSection === 'resumen' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   <HistogramChart 
                     data={simulacionData?.resultadosVAN} 
+                    dataVanActual={dataVanActual}
                     title="Distribución de VAN Simulados" 
                   />
-                  <DistributionChart 
-                    title="Análisis de Sensibilidad"
-                    data={processedData?.matrizFinalEsperados}
+                  <VariablesChart
+                    title='Distribuciones de Variables'
+                    data={escenriosData}
                   />
+                  <RhoVariablesChart/>
                 </div>
               )}
 
