@@ -2,7 +2,6 @@
 import { useSimulation } from '@/context/SimulacionContext';
 import { getDataSimuladaRiqueza } from '@/lib/apiConnection';
 import HistogramChart from '@/views/Charts/HistogramChart';
-import LineChartVan from '@/views/Charts/LineChartVan';
 import RhoVariablesChart from '@/views/Charts/RhoChart';
 import VariablesChart from '@/views/Charts/VariablesChart';
 import LoadingPage from '@/views/Loading/LoadingPage';
@@ -210,7 +209,6 @@ export default function Page() {
             onSectionChange={setActiveSection}
           />
 
-          {/* Contenido Principal */}
           <div className="flex-1">
             {/* Tarjeta de Resumen y Descarga */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
@@ -274,7 +272,7 @@ export default function Page() {
                     title='Distribuciones de Variables'
                     data={escenriosData}
                   />
-                  <RhoVariablesChart/>
+                  <RhoVariablesChart />
                 </div>
               )}
 
@@ -298,7 +296,6 @@ export default function Page() {
                 </div>
               )}
 
-              {/* Placeholders para otras secciones */}
               {['escenarios', 'analisis', 'temporal'].includes(activeSection) && (
                 <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gray-100">
