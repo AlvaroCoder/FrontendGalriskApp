@@ -69,7 +69,7 @@ export default function RhoVariablesChart({
         if (!responseJSON.valoresBaseRiqueza || !responseJSON.matrizRho) {
           throw new Error("Datos incompletos en la respuesta");
         }
-
+        
         setChartData({
           valoresBaseRiqueza: responseJSON.valoresBaseRiqueza,
           matrizRho: responseJSON.matrizRho

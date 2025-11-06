@@ -3,6 +3,7 @@ import { useSimulation } from '@/context/SimulacionContext';
 import { getDataSimuladaRiqueza } from '@/lib/apiConnection';
 import HistogramChart from '@/views/Charts/HistogramChart';
 import RhoVariablesChart from '@/views/Charts/RhoChart';
+import RhoLineChart from '@/views/Charts/RhoLineChart';
 import VariablesChart from '@/views/Charts/VariablesChart';
 import LoadingPage from '@/views/Loading/LoadingPage';
 import { Download, BarChart3, PieChart, TrendingUp, Calendar, Users, Target } from 'lucide-react';
@@ -192,7 +193,6 @@ export default function Page() {
       style={{ backgroundColor: colors.background }}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8 animate-slide-down">
           <h1 className="text-4xl font-bold mb-2" style={{ color: colors.primary }}>
             Resultados de Simulación
@@ -263,16 +263,20 @@ export default function Page() {
             <div className="space-y-6">
               {activeSection === 'resumen' && (
                 <div className="grid grid-cols-1 gap-6">
-                  <HistogramChart 
-                    data={simulacionData?.resultadosVAN} 
-                    dataVanActual={dataVanActual}
-                    title="Distribución de VAN Simulados" 
-                  />
-                  <VariablesChart
-                    title='Distribuciones de Variables'
-                    data={escenriosData}
-                  />
-                  <RhoVariablesChart />
+                  
+                      <HistogramChart 
+                        data={simulacionData?.resultadosVAN} 
+                        dataVanActual={dataVanActual}
+                        title="Distribución de VAN Simulados" 
+                      />
+                      <VariablesChart
+                        title='Distribuciones de Variables'
+                        data={escenriosData}
+                      />
+                    <RhoVariablesChart />
+                    <RhoLineChart/>
+            
+
                 </div>
               )}
 
@@ -286,13 +290,10 @@ export default function Page() {
               {activeSection === 'distribucion' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <DistributionChart 
-                    title="Distribución de Probabilidad"
+                    title="Distribución de"
                     data={processedData?.matrizRho}
                   />
-                  <DistributionChart 
-                    title="Riqueza Simulada"
-                    data={processedData?.matrizRiquezaInicialSimulada}
-                  />
+                
                 </div>
               )}
 

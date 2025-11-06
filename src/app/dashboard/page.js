@@ -2,7 +2,7 @@
 import { getSession } from '@/authentication/lib';
 import { deleteExcel, getExcelsByIdUser } from '@/lib/apiConnection'
 import LoadingPage from '@/views/Loading/LoadingPage';
-import { Trash } from 'lucide-react';
+import { Trash, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
@@ -81,7 +81,33 @@ export default function Page() {
           </h1>
           <p className="text-lg opacity-80 text-nigth-blue" >
             Gestiona y continúa trabajando en tus archivos
-          </p>
+            </p>
+            <button
+              onClick={()=>router.push("/dashboard/upload")}
+              className="
+                      w-full 
+                      py-3 
+                      mb-6
+                      mt-4
+                      px-4 
+                      rounded-xl 
+                      font-semibold 
+                      transition-all 
+                      duration-300 
+                      hover:shadow-lg 
+                      hover:scale-105 
+                      active:scale-95
+                      flex 
+                      items-center 
+                      justify-center 
+                      gap-2
+                    "
+                    style={{ 
+                      backgroundColor: "#FFC525",
+                      color: "#1B263B"
+                    }}>
+              <p className='flex flex-row gap-4'><Upload/> Subir proyecto</p>
+            </button>
         </div>
         {
           excelsData?.length > 0 &&
