@@ -52,20 +52,36 @@ export default function Page() {
       [name]: value,
     }));
   };
-  const handleSubmitExcel = async () => {
-    if (fileExcel === null) {
-      return toast("Por favor selecciona un archivo Excel", {
-        type: "error",
-        position: "bottom-center",
-      });
-    }
+const handleSubmitExcel = async () => {
+  if (fileExcel === null) {
+    return toast("Por favor selecciona un archivo Excel", {
+      type: "error",
+      position: "bottom-center",
+    });
+  }
+
+  try {
+    setUploading(true);
+    
     const newFormData = new FormData();
     newFormData.append("file", fileExcel);
     newFormData.append("usuario_id", dataSession?.id);
+    newFormData.append("nombre_excel", formData.nombre_excel || fileExcel.name);
+    newFormData.append("descripcion", formData.descripcion || "");
+
+    console.log('Enviando FormData:', {
+      file: fileExcel.name,
+      usuario_id: dataSession?.id,
+      nombre_excel: formData.nombre_excel,
+      descripcion: formData.descripcion
+    });
+
     const response = await uploadDocumentExcel(newFormData);
 
-    if (!response.ok || response.status == 404) {
-      toast("No se pudo subir el Excel!", {
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error response:', errorData);
+      toast("No se pudo subir el Excel: " + (errorData.error || 'Error desconocido'), {
         type: "error",
         position: "bottom-center",
       });
@@ -73,7 +89,7 @@ export default function Page() {
     }
 
     const responseJSON = await response.json();
-    console.log(responseJSON?.excel?.id);
+    console.log('Respuesta exitosa:', responseJSON);
 
     setExcelResponse(responseJSON?.excel);
 
@@ -81,7 +97,16 @@ export default function Page() {
       type: "success",
       position: "bottom-right",
     });
-  };
+  } catch (error) {
+    console.error('Error en handleSubmitExcel:', error);
+    toast("Error de conexión al subir el archivo", {
+      type: "error",
+      position: "bottom-center",
+    });
+  } finally {
+    setUploading(false);
+  }
+};
   return (
     <section className="w-full min-h-screen py-8 flex justify-center items-center text-nigth-blue transition-all duration-500">
       {!escenarios ? (
