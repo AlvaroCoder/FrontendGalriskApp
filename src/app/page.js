@@ -8,7 +8,7 @@ export default function Home() {
 
       <section className="flex flex-col items-center text-center mt-16 px-6">
         <h2 className="text-4xl md:text-5xl font-extrabold text-[#14213d] mb-4">
-          Analiza, Evalúa y Optimiza tus proyectos con Galrisk
+          Analiza, Evalúa y Optimiza tus proyectos con Gallrisk
         </h2>
         <p className="text-lg text-gray-700 max-w-2xl mb-8">
           La herramienta inteligente para el análisis financiero y estadístico de tus proyectos.
