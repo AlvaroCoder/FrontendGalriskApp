@@ -1,9 +1,9 @@
-const URL_UPLOAD_EXCEL="http://localhost:9090/api/excel/upload";
-const URL_GET_DOCUMENT_EXCEL="http://localhost:9090/api/excel/";
-const URL_GET_DATA_EXCEL="http://localhost:9090/api/excel/usuario/"
-const URL_PROCESS_DATA ="http://localhost:9090/api/excel/processData";
-const URL_EXTRAER_VARIABLES="http://localhost:9090/api/excel/extraerResultadosTop/"
-const BASE_URL_EXCEL = "http://localhost:9090/api/excel/";
+const URL_UPLOAD_EXCEL=process.env.NEXT_PUBLIC_URL_UPLOAD_EXCEL;
+const URL_GET_DOCUMENT_EXCEL=process.env.NEXT_PUBLIC_URL_GET_DOCUMENT_EXCEL;
+const URL_GET_DATA_EXCEL=process.env.NEXT_PUBLIC_URL_GET_DATA_EXCEL
+const URL_PROCESS_DATA =process.env.NEXT_PUBLIC_URL_PROCESS_DATA;
+const URL_EXTRAER_VARIABLES=process.env.NEXT_PUBLIC_URL_EXTRAER_VARIABLES
+const BASE_URL_EXCEL = process.env.NEXT_PUBLIC_BASE_URL_EXCEL;
 
 export async function uploadDocumentExcel(fileExcel=null) {
     if (!fileExcel) return;

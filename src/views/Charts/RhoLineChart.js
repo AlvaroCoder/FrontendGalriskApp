@@ -14,7 +14,6 @@ const colors = {
 
 export default function RhoLineChart({
   title = "Equivalente Cierto para cada Rho",
-  data = {}
 }) {
   const { simulacionData } = useSimulation();
   const [dataUtilidad, setDataUtilidad] = useState(null);
@@ -83,7 +82,6 @@ export default function RhoLineChart({
     return rhoMap[rhoKey] || rhoKey;
   };
 
-  // Procesamiento seguro de datos
   const chartData = useMemo(() => {
     // Si no hay datos, retornar array vacío
     if (!dataUtilidad || !dataUtilidad.utilidadDinero) {
