@@ -38,6 +38,7 @@ export async function downloadSimulationResults(data) {
     });
 
     if (!response.ok) {
+      console.log(await response.json());
       
       throw new Error('Error al generar el Excel');
     }

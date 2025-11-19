@@ -1,6 +1,5 @@
 "use client";
 import { useSimulation } from "@/context/SimulacionContext";
-import DownloadButton from "@/elements/Buttons/DownloadButton";
 import MetricCard from "@/elements/Card/MetricCard";
 import { getDataSimuladaRiqueza } from "@/lib/apiConnection";
 import HistogramChart from "@/views/Charts/HistogramChart";
@@ -47,13 +46,6 @@ export default function Page() {
           valorActual,
           escenarios,
         } = simulacionData;
-        console.log({
-          riquezaInicial,
-          resultadosSimulacion,
-          inversionInicial,
-          valorActual,
-          escenarios,
-        });
 
         const response = await getDataSimuladaRiqueza(
           {
@@ -118,18 +110,8 @@ export default function Page() {
                     >
                       10,000 escenarios
                     </span>{" "}
-                    con análisis de sensibilidad del VAN
+                    con análisis de sensibilidad de la celda objetivo
                   </p>
-                  <div className="">
-                    <DownloadButton
-                      simulationData={simulacionData?.dataToProcess}
-                      loading={loading}
-                      disabled={false}
-                    />
-                    <p className="text-xs text-gray-500 mt-2">
-                      Incluye todos los datos y análisis
-                    </p>
-                  </div>
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     <MetricCard
                       title="Total Escenarios"
@@ -179,7 +161,6 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Estilos de animación */}
       <style jsx global>{`
         @keyframes slide-down {
           from {

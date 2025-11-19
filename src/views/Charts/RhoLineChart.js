@@ -83,7 +83,6 @@ export default function RhoLineChart({
   };
 
   const chartData = useMemo(() => {
-    // Si no hay datos, retornar array vacío
     if (!dataUtilidad || !dataUtilidad.utilidadDinero) {
       return [];
     }

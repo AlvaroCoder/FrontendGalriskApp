@@ -131,20 +131,20 @@ const HistogramChart = ({ data, title, dataVanActual = 1023.05 }) => {
           borderRadius: 2,
           pointPadding: 0,
           groupPadding: 0.1,
-          colorByPoint: true, // Permitir colores diferentes por punto
+          colorByPoint: true, 
           colors: bins.map(bin => 
             bin.isNegative 
               ? {
                   linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
                   stops: [
-                    [0, '#EF4444'], // Rojo para valores negativos
+                    [0, '#EF4444'], 
                     [1, '#DC2626']
                   ]
                 }
               : {
                   linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
                   stops: [
-                    [0, '#FFC525'], // Naranja para valores positivos
+                    [0, '#FFC525'], 
                     [1, '#F59E0B']
                   ]
                 }
@@ -175,22 +175,7 @@ const HistogramChart = ({ data, title, dataVanActual = 1023.05 }) => {
         },
         yAxis: 1
       }, {
-        name: 'Media General',
-        type: 'line',
-        data: [
-          [0, 0],
-          [bins.length - 1, Math.max(...bins.map(bin => bin.count)) * 1.1]
-        ],
-        color: '#10B981', 
-        lineWidth: 2,
-        dashStyle: 'Dash',
-        marker: {
-          enabled: false
-        },
-        enableMouseTracking: false,
-        yAxis: 0
-      }, {
-        name: 'VAN Actual',
+        name: 'Valor Actual',
         type: 'line',
         data: [
           [bins.findIndex(bin => dataVanActual >= bin.start && dataVanActual < bin.end), 0],
@@ -303,19 +288,15 @@ const HistogramChart = ({ data, title, dataVanActual = 1023.05 }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-gray-600">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-[#FFC525]"></div>
-            <span>VAN Positivo</span>
+            <span>Valor Positivo</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 rounded bg-[#EF4444]"></div>
-            <span>VAN Negativo</span>
+            <span>Valor Negativo</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-1.5 bg-[#1B263B] border border-dashed"></div>
             <span>Frec. Acumulada</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-3 h-0.5 bg-[#10B981] border border-dashed"></div>
-            <span>Media General</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-0.5 bg-[#8B5CF6] border border-dotted"></div>

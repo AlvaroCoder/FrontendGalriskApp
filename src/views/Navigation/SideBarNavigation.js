@@ -7,6 +7,7 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const colors = {
@@ -16,15 +17,17 @@ const colors = {
 };
 
 export default function SideBarNavigation() {
+    const router = useRouter();
+
   const [activeSection, setActiveSection] = useState("resumen");
 
   const sections = [
-    { id: "resumen", title: "Resumen General", icon: BarChart3 },
-    { id: "histograma", title: "Histograma VAN", icon: TrendingUp },
-    { id: "distribucion", title: "Distribución", icon: PieChart },
-    { id: "escenarios", title: "Escenarios", icon: Users },
-    { id: "analisis", title: "Análisis", icon: Target },
-    { id: "temporal", title: "Serie Temporal", icon: Calendar },
+    { id: "resumen",route : "/dashboard/simulacion", title: "Resumen General", icon: BarChart3 },
+    { id: "histograma", route : "/dashboard/simulacion", title: "Histograma VAN", icon: TrendingUp },
+    { id: "distribucion", route : "/dashboard/simulacion", title: "Distribución", icon: PieChart },
+    { id: "escenarios", route : "/dashboard/simulacion/escenarios" , title: "Escenarios", icon: Users },
+    { id: "analisis", route : "/dashboard/simulacion",title: "Análisis", icon: Target },
+    { id: "temporal", route : "/dashboard/simulacion",title: "Serie Temporal", icon: Calendar },
   ];
 
   return (
@@ -44,7 +47,10 @@ export default function SideBarNavigation() {
         {sections.map((section) => (
           <button
             key={section.id}
-            onClick={() => setActiveSection(section.id)}
+            onClick={() => {
+                setActiveSection(section.id);
+                router.push(section.route)
+            }}
             className={`
               w-full text-left px-3 py-2 rounded-lg transition-all duration-200
               flex items-center gap-3

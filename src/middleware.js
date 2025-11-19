@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "./authentication/lib";
 
-export async function middleware(request=NextRequest) {
-    const url = request.nextUrl.clone();
+export async function middleware(request = NextRequest) {
+    
     const session = await getSession();
-
+    
     if (session !== null && request.nextUrl.pathname.startsWith('/login')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
     } 

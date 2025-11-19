@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 
 const SimulacionContext = createContext({
   simulacionData: {},
@@ -17,14 +17,15 @@ export function SimluacionProvider({ children }) {
   const clearSimulacionData = () => {
     setSimulacionData(null);
   };
-
+  const contextValue = useMemo(() => ({
+    simulacionData,
+    setSimulacionResults,
+    clearSimulacionData,
+  }), [simulacionData]);
+  
   return (
     <SimulacionContext.Provider
-      value={{
-        simulacionData,
-        setSimulacionResults,
-        clearSimulacionData,
-      }}
+      value={contextValue}
     >
       {children}
     </SimulacionContext.Provider>
