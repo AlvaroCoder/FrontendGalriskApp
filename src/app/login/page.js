@@ -56,7 +56,6 @@ export default function Page() {
   }
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 text-nigth-blue">
-      {/* Sección izquierda (Formulario) */}
       <div className="flex flex-col justify-center px-8 md:px-16 bg-white">
         {error && <div className='w-full bg-red-200 rounded-sm p-4 my-4'>
           <p>Error : {error?.error}</p>
@@ -65,7 +64,6 @@ export default function Page() {
         <p className="text-gray-600 mb-8">Accede a tu cuenta y analiza tus proyectos de manera segura.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Username */}
           <div>
             <TextField
               label="Nombre de Usuario"
@@ -78,14 +76,12 @@ export default function Page() {
             />
           </div>
 
-          {/* Password */}
           <StyleInputMaterialUi
             handleChange={handleChange}
             value={dataUser.password}
             nameInput="password"
           />
 
-          {/* Botón */}
           <button
             disabled={loading}
             type="submit"
@@ -95,7 +91,6 @@ export default function Page() {
           </button>
         </form>
 
-        {/* Enlace a registro */}
         <p className="mt-6 text-gray-600 text-sm">
           ¿No tienes una cuenta?{" "}
           <Link 
@@ -106,7 +101,6 @@ export default function Page() {
         </p>
       </div>
 
-      {/* Sección derecha (Imagen + frase) */}
       <div className="hidden md:flex items-center justify-center bg-[#14213d] text-white relative">
         <Image
           src={URL_IMAGEN_LOGIN} 

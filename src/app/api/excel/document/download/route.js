@@ -20,7 +20,6 @@ export async function GET(request) {
       throw new Error('Download failed');
     }
 
-    // Para archivos, devolvemos la respuesta directamente
     return new Response(response.body, {
       status: response.status,
       headers: response.headers,

@@ -74,14 +74,12 @@ export default function VariablesChart({ title = "", data = [] }) {
       bins[index]++;
     });
 
-    // Calcular medias de los bins para el eje X
     const binMeans = Array.from({ length: numBins }, (_, i) => {
       const binStart = min + i * binSize;
       const binEnd = binStart + binSize;
       return (binStart + binEnd) / 2;
     });
 
-    // Determinar colores por bin (rojo para negativos, naranja para positivos)
     const binColors = binMeans.map(mean => 
       mean < 0 
         ? {

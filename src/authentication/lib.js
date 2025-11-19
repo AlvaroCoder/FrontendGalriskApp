@@ -55,7 +55,7 @@ export async function login(dataUser) {
     return {
       error: false,
       message: "Ingreso exitoso",
-      tokenData: value, // ✅ Retornamos datos decodificados
+      tokenData: value, 
     };
   }
 

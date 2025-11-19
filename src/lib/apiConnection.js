@@ -27,6 +27,41 @@ export async function processData(data) {
   });
 }
 
+export async function downloadSimulationResults(data) {
+  try {
+    const response = await fetch('/api/excel/download-simulation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      
+      throw new Error('Error al generar el Excel');
+    }
+
+    const blob = await response.blob();
+    
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'simulacion_escenarios.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error downloading simulation results:', error);
+    throw error;
+  }
+}
+
 export async function getDataExcelByIdUser(idUser) {
   return await fetch(`${BASE_API_URL}/user/${idUser}/data`, {
     method: 'GET',

@@ -20,9 +20,10 @@ export async function POST(request) {
     );
 
     const data = await response.json();
+    console.log(data);
     
     return NextResponse.json(data, { status: response.status });
-  } catch (error) {
+  } catch (error) {    
     return NextResponse.json(
       { error: 'Error simulating wealth' },
       { status: 500 }

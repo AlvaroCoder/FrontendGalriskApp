@@ -4,7 +4,6 @@ const URL_UPLOAD_EXCEL = process.env.URL_UPLOAD_EXCEL;
 
 export async function POST(request) {
   try {
-    // Obtener el FormData completo de la request
     const formData = await request.formData();
     
     console.log('FormData recibido:', {
@@ -13,7 +12,6 @@ export async function POST(request) {
       keys: Array.from(formData.keys())
     });
 
-    // Verificar que el archivo esté presente
     const file = formData.get('file');
     if (!file) {
       return NextResponse.json(
@@ -22,13 +20,10 @@ export async function POST(request) {
       );
     }
 
-    // Reconstruir el FormData para enviar a Spring
     const springFormData = new FormData();
     
-    // Agregar el archivo
     springFormData.append('file', file);
     
-    // Agregar otros campos si existen
     const usuario_id = formData.get('usuario_id');
     if (usuario_id) {
       springFormData.append('usuario_id', usuario_id);
@@ -44,11 +39,9 @@ export async function POST(request) {
       springFormData.append('descripcion', descripcion);
     }
 
-    // Enviar a Spring
     const response = await fetch(URL_UPLOAD_EXCEL, {
       method: 'POST',
       body: springFormData,
-      // NO incluir headers Content-Type para FormData, el navegador lo establece automáticamente
     });
 
     if (!response.ok) {

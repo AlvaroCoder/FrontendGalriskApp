@@ -99,14 +99,19 @@ export default function ViewExcelVisor({
   };
 
   const handleCellClick = async (rowIndex, colIndex, value) => {
+    // Lo que debemos lograr es que cuando el cliente da click
+    // El valor de la celda se vuelve automaticamente en el valor de la celda objetivo.
     setValorCeldaSeleccionada(null);
     if (workbook && selectedSheet) {
       const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
       const worksheet = workbook.Sheets[selectedSheet];
       const cell = worksheet[cellAddress];
+      console.log("VALOR DE LA CELDA", cell);
+      
       if (cell && cell.f) {
         const formulaUpper = cell.f.toUpperCase();
-
+        console.log(formulaUpper);
+        
         if (formulaUpper.startsWith("VAN") || formulaUpper.startsWith("NPV")) {
           const VAB = formulaUpper?.split("+");
 
@@ -130,84 +135,93 @@ export default function ViewExcelVisor({
   };
 
   const handleClickExtraerTopVariables = async () => {
-    const letraCelda =
-      String.fromCharCode(64 + selectedCell.col) + String(selectedCell.row);
-    const responseExcel = await getDataExcelByIdExcel(idExcel);
-    const responseExcelJSON = await responseExcel.json();
-
-    const rutaExcel = responseExcelJSON?.ruta_excel;
-    const dataVariable = {
-      hoja: selectedSheet,
-      rutaExcel,
-      celda: letraCelda,
-    };
-    const variablesTop = await extraerVariablesTop(
-      dataVariable,
-      numeroVariablesTop
-    );
-
-    setRutaExcel(rutaExcel);
-    const variablesTopJSON = await variablesTop.json();
-
-    setVariablesTop(variablesTopJSON?.resultadosTop);
-  };
-
-  const handleSubmitAdditionDetails = async (data) => {
     try {
       setLoading(true);
-      const letraCelda =
-      String.fromCharCode(64 + selectedCell.col) + String(selectedCell.row);
 
-      const newDataToSend = {
-        rutaExcel,
-        celdaObjetivo: letraCelda,
-        hojaObjetivo: selectedSheet,
-        variables: formValuesData,
-        topResultados: variablesTop,
-        tasaInteres: parseFloat(data?.tasa) / 100,
-      };
+        const letraCelda = String.fromCharCode(64 + selectedCell.col) + String(selectedCell.row);
+        const responseExcel = await getDataExcelByIdExcel(idExcel);
+        const responseExcelJSON = await responseExcel.json();
 
-      const responseProcess = await processData(newDataToSend);
-
-      const responseProcessJSON = await responseProcess.json();
-      console.log(responseProcessJSON);
-      
-      const simulationData = {
-        escenarios: responseProcessJSON?.escenarios,
-        resultadosVAN: responseProcessJSON?.resultadosVAN,
-        inversionInicial: valorCeldaSeleccionada[valorCeldaSeleccionada?.length - 1] * -1,
-        vanActual : responseProcessJSON?.VANActual,
-        riqueza: parseInt(data?.riqueza),
-        metadata: {
-          celda: letraCelda,
+        const rutaExcel = responseExcelJSON?.ruta_excel;
+        const dataVariable = {
           hoja: selectedSheet,
-          variables: formValuesData,
-          tasaInteres: parseFloat(data?.tasa) / 100
-        }
-      };
+          rutaExcel,
+          celda: letraCelda,
+        };
+      
+        const variablesTop = await extraerVariablesTop(
+          dataVariable,
+          numeroVariablesTop
+        );
 
-      setSimulacionResults(simulationData);
+        setRutaExcel(rutaExcel);
+        const variablesTopJSON = await variablesTop.json();
 
-      toast("Se proceso la data correctamente", {
-        type: "success",
-        position: "bottom-right",
-      });
-
-      setOpenDetailData(false);
-
-      router.push("/dashboard/simulacion");
-
+        setVariablesTop(variablesTopJSON?.resultadosTop);
     } catch (err) {
       console.log(err);
-
-      toast("No se pudo procesar la data", {
-        type: "error",
-        position: "bottom-center",
-      });
+      
     } finally {
       setLoading(false);
     }
   };
+
+const handleSubmitAdditionDetails = async (data) => {
+  try {
+    setLoading(true);
+    const letraCelda =
+      String.fromCharCode(64 + selectedCell.col) + String(selectedCell.row);
+
+    const newDataToSend = {
+      rutaExcel,
+      celdaObjetivo: letraCelda,
+      hojaObjetivo: selectedSheet,
+      variables: formValuesData,
+      topResultados: variablesTop,
+    };
+
+    const responseProcess = await processData(newDataToSend);
+
+    const responseProcessJSON = await responseProcess.json();
+    console.log(responseProcessJSON);
+    
+    const simulationData = {
+      escenarios: responseProcessJSON?.escenarios,
+      resultadosSimulacion: responseProcessJSON?.resultadoSimulacion, 
+      inversionInicial: 10000,
+      valorActual: responseProcessJSON?.valorActual, 
+      riqueza: parseInt(data?.riqueza),
+      metadata: {
+        celda: letraCelda,
+        hoja: selectedSheet,
+        variables: formValuesData,
+        celdaObjetivo: responseProcessJSON?.celdaObjetivo 
+      },
+      dataToProcess : newDataToSend
+    };
+    
+    setSimulacionResults(simulationData);
+
+    toast("Se procesó la data correctamente", {
+      type: "success",
+      position: "bottom-right",
+    });
+
+    setOpenDetailData(false);
+
+    router.push("/dashboard/simulacion");
+
+  } catch (err) {
+    console.log(err);
+
+    toast("No se pudo procesar la data", {
+      type: "error",
+      position: "bottom-center",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleOpen = () => {
     if (openDetailData) {
@@ -221,19 +235,8 @@ export default function ViewExcelVisor({
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: "##F5F6FA" }}>
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 animate-slide-down">
-          <h1
-            className="text-3xl font-bold mb-2"
-            style={{ color: colors.primary }}
-          >
-            Visor de Excel
-          </h1>
-          <p className="text-gray-600" style={{ color: colors.primary }}>
-            Visualiza y analiza tu archivo Excel
-          </p>
-        </div>
+    <div className="min-h-screen" style={{ backgroundColor: "##F5F6FA" }}>
+      <div className="w-full mx-auto">
         <DialogAdditionalDetails
           open={openDetailData}
           handleSubmit={handleSubmitAdditionDetails}

@@ -161,14 +161,14 @@ const HistogramChart = ({ data, title, dataVanActual = 1023.05 }) => {
         type: 'column',
         data: bins.map(bin => ({
           y: bin.count,
-          color: bin.isNegative ? '#EF4444' : '#FFC525' // Color individual por barra
+          color: bin.isNegative ? '#EF4444' : '#FFC525' 
         })),
         yAxis: 0
       }, {
         name: 'Frecuencia Acumulada',
         type: 'spline',
         data: cumulativeData,
-        color: '#1B263B', // Cambiado a color primary para mejor contraste
+        color: '#1B263B', 
         dashStyle: 'ShortDash',
         marker: {
           enabled: false
@@ -196,7 +196,7 @@ const HistogramChart = ({ data, title, dataVanActual = 1023.05 }) => {
           [bins.findIndex(bin => dataVanActual >= bin.start && dataVanActual < bin.end), 0],
           [bins.findIndex(bin => dataVanActual >= bin.start && dataVanActual < bin.end), Math.max(...bins.map(bin => bin.count)) * 1.1]
         ],
-        color: '#8B5CF6', // Violeta para el VAN actual
+        color: '#8B5CF6',
         lineWidth: 2,
         dashStyle: 'Dash',
         marker: {

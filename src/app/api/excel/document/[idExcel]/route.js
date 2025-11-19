@@ -4,7 +4,7 @@ const URL_GET_DOCUMENT_EXCEL = process.env.URL_GET_DOCUMENT_EXCEL;
 
 export async function GET(request, { params }) {
   try {
-    const { idExcel } = params;
+    const { idExcel } = await params;
     
     const response = await fetch(`${URL_GET_DOCUMENT_EXCEL}${idExcel}`);
     const data = await response.json();
