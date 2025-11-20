@@ -1,9 +1,10 @@
 'use client'
 import { getSession } from '@/authentication/lib';
-import { ChevronRight, Loader2, Upload, User2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
+import ButtonUser from "../../elements/Buttons/ButtonUser";
 
 function ButtonsGroup() {
   const router = useRouter();
@@ -24,22 +25,6 @@ function ButtonsGroup() {
   )
 }
 
-function ButtonUser({
-  username
-}) {
-  const router = useRouter();
-  return(
-    <div className='flex flex-row gap-4'>
-      <button
-        onClick={()=>router.push("/dashboard")}
-        className='bg-yellow-intense text-nigth-blue p-4 rounded-lg hover:bg-orange-400 transition-all duration-300 font-bold'>
-        <p className='flex flex-row items-center gap-4'>
-           Ver Dashboard <ChevronRight fontSize={"small"} />
-       </p>
-      </button>
-    </div>
-  )
-}
 
 export default function TopBar() {
   const [loading, setLoading] = useState(false);
@@ -68,7 +53,7 @@ export default function TopBar() {
     <header className="bg-nigth-blue text-white px-6 py-4 flex justify-between items-center shadow-md">
       <h1 
       onClick={()=>router.push("/dashboard")}
-      className="text-2xl font-bold">Gallrisk</h1>
+      className="text-2xl font-bold cursor-pointer">Gallrisk</h1>
       {
         loading ? 
         <span><Loader2 className='animate-spin' /></span> :
