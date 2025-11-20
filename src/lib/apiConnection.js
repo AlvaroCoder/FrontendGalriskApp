@@ -5,7 +5,18 @@ export async function uploadDocumentExcel(formData) {
     method: 'POST',
     body: formData,
   });
+};
+
+export async function updateDataExcel(data) {
+  return await fetch(`${BASE_API_URL}/updateData`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type' : 'application/json'
+    },
+    body : JSON.stringify(data)
+  })
 }
+
 
 export async function extraerVariablesTop(data, variablesTop = 3) {
   return await fetch(`${BASE_API_URL}/variables`, {

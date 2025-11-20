@@ -5,7 +5,7 @@ const URL_GET_DOCUMENT_EXCEL = process.env.URL_GET_DOCUMENT_EXCEL;
 
 export async function GET(request, { params }) {
   try {
-    const { idUser } = params;
+    const { idUser } = await params;
     
     const url = new URL(request.url);
     
