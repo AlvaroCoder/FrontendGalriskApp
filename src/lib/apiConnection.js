@@ -63,6 +63,13 @@ export async function downloadSimulationResults(data) {
   }
 }
 
+export async function getDataProfileByIdUser(idUser) {
+  return await fetch(`/api/usuarios/${idUser}`, {
+    method: 'GET',
+    mode : 'cors'
+  })
+}
+
 export async function getDataExcelByIdUser(idUser) {
   return await fetch(`${BASE_API_URL}/user/${idUser}/data`, {
     method: 'GET',

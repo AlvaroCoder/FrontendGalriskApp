@@ -4,6 +4,7 @@ import {
   Table,
   ChevronLeft,
   ChevronRight,
+  BarChart,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
@@ -36,8 +37,8 @@ export default function SideBarNavigation() {
 
   const sections = [
     { id: "resumen", route: "/dashboard/simulacion", title: "Resumen General", icon: BarChart3 },
-    { id: "escenarios", route: "/dashboard/simulacion/escenarios", title: "Escenarios", icon: Table },
-    
+    { id: "escenarios", route: "/dashboard/simulacion/escenarios", title: "Escenarios", icon: Table }, ,
+    { id : "variablesTop", route : "/dashboard/simulacion/variablesTop", title : "Variables Top", icon : BarChart}
   ];
 
   const toggleSidebar = () => {
