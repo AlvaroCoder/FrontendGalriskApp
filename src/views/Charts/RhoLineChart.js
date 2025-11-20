@@ -22,7 +22,7 @@ export default function RhoLineChart({
 
   useEffect(() => {
     async function fetchDataUtilidad() {
-      if (!simulacionData?.riqueza || !simulacionData?.inversionInicial || !simulacionData?.resultadosVAN) {
+      if (!simulacionData?.riqueza || !simulacionData?.inversionInicial || !simulacionData?.resultadosSimulacion) {
         console.log("Datos de simulación incompletos");
         return;
       }
@@ -34,16 +34,17 @@ export default function RhoLineChart({
         const newDataToSend = {
           riquezaInicial: simulacionData.riqueza,
           inversionInicial: simulacionData.inversionInicial,
-          resultadosVAN: simulacionData.resultadosVAN,
+          resultadoSimulacion: simulacionData.resultadosSimulacion,
         };
 
         const response = await getDataSimuladaRiqueza(newDataToSend, 10000);
+       
+        
         if (!response.ok) {
           throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
 
         const responseJSON = await response.json();
-        console.log("Datos utilidad:", responseJSON);
 
         if (!responseJSON || (!responseJSON.utilidadEsperada && !responseJSON.utilidadDinero)) {
           throw new Error("Estructura de datos incorrecta en la respuesta");
@@ -116,15 +117,23 @@ export default function RhoLineChart({
   const chartOptions = useMemo(() => {
     if (chartData.length === 0) {
       return {
-        chart: { type: "line", height: 500 },
+        chart: { type: "column", height: 500 },
         title: { text: "No hay datos disponibles" },
         series: []
       };
     }
 
+    const values = chartData.map(item => item.value);
+    const minValue = Math.min(...values);
+    const maxValue = Math.max(...values);
+    const range = maxValue - minValue;
+    
+    const averageValue = values.reduce((a, b) => a + b, 0) / values.length;
+    const isSmallRange = range < averageValue * 0.01;
+
     return {
       chart: {
-        type: "line",
+        type: "column",
         backgroundColor: "transparent",
         height: 500,
         style: {
@@ -151,6 +160,7 @@ export default function RhoLineChart({
           style: {
             color: "#6B7280",
             fontSize: "11px",
+            fontWeight: "500",
           },
           rotation: -45,
         },
@@ -161,7 +171,7 @@ export default function RhoLineChart({
       },
       yAxis: {
         title: {
-          text: "Equivalente Cierto",
+          text: "Equivalente Cierto (S/.)",
           style: {
             color: "#6B7280",
             fontSize: "12px",
@@ -174,9 +184,14 @@ export default function RhoLineChart({
             fontSize: "11px",
           },
           formatter: function () {
-            return Highcharts.numberFormat(this.value, 0, ".", ",");
+            return isSmallRange 
+              ? Highcharts.numberFormat(this.value, 2, ".", ",")
+              : Highcharts.numberFormat(this.value, 0, ".", ",");
           },
         },
+        min: isSmallRange ? minValue - range * 0.1 : null,
+        max: isSmallRange ? maxValue + range * 0.1 : null,
+        tickInterval: isSmallRange ? range * 0.1 : null, 
         gridLineColor: "#F3F4F6",
         gridLineWidth: 1,
         lineColor: "#E5E7EB",
@@ -184,28 +199,39 @@ export default function RhoLineChart({
       series: [
         {
           name: "Equivalente Cierto",
-          data: chartData.map((item) => item.value),
+          data: chartData.map((item) => ({
+            y: item.value,
+            name: item.label, 
+          })),
           color: colors.accent,
-          lineWidth: 3,
-          marker: {
-            enabled: true,
-            radius: 6,
-            symbol: "circle",
-            fillColor: "#FFFFFF",
-            lineWidth: 2,
-            lineColor: colors.accent,
-            states: {
-              hover: {
-                radius: 8,
-                lineWidth: 3,
-              },
-            },
-          },
+          borderWidth: 0,
+          borderRadius: 4,
+          pointPadding: 0.05, 
+          groupPadding: 0.05, 
           states: {
             hover: {
-              lineWidth: 4,
-            },
+              brightness: 0.1,
+              borderColor: colors.primary,
+              borderWidth: 2
+            }
           },
+          dataLabels: {
+            enabled: true,
+            inside: false,
+            style: {
+              color: colors.primary,
+              fontSize: "10px",
+              fontWeight: "600",
+              textOutline: "none"
+            },
+            formatter: function() {
+              return  isSmallRange 
+                ? Highcharts.numberFormat(this.y, 2, ".", ",")
+                : Highcharts.numberFormat(this.y, 0, ".", ",");
+            },
+            verticalAlign: 'top',
+            y: -20 
+          }
         },
       ],
       tooltip: {
@@ -217,9 +243,9 @@ export default function RhoLineChart({
         useHTML: true,
         formatter: function () {
           return `
-            <div style="padding: 8px; min-width: 120px;">
+            <div style="padding: 8px; min-width: 140px;">
               <div style="font-weight: 600; color: ${colors.primary}; margin-bottom: 4px;">
-                ${this.x}
+                ${this.point.name}
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="color: #6B7280;">Equivalente Cierto:</span>
@@ -232,10 +258,14 @@ export default function RhoLineChart({
         },
       },
       plotOptions: {
-        line: {
+        column: {
           animation: {
             duration: 1000,
           },
+          pointWidth: 45, 
+          colorByPoint: false,
+          borderWidth: 0,
+          grouping: false 
         },
       },
       legend: {
@@ -253,6 +283,14 @@ export default function RhoLineChart({
                   rotation: -90,
                 },
               },
+              plotOptions: {
+                column: {
+                  pointWidth: 30, 
+                  dataLabels: {
+                    enabled: false 
+                  }
+                }
+              }
             },
           },
         ],
@@ -260,7 +298,6 @@ export default function RhoLineChart({
     };
   }, [chartData]);
 
-  // Estados de carga y error
   if (loading) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-6">
@@ -310,24 +347,22 @@ export default function RhoLineChart({
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-      {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
         <div>
           <h3 className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
             {title}
           </h3>
           <p className="text-gray-600 text-sm">
-            Equivalente cierto segun diferentes valores de riesgo
+            Equivalente cierto según diferentes valores de riesgo
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <TrendingUp className="w-4 h-4" />
-          <span>Gráfico Lineal</span>
+          <span>Gráfico de Barras</span>
         </div>
       </div>
 
-      {/* Gráfico */}
-      <div className="h-96 rounded-xl bg-white mb-6 border border-gray-100">
+      <div className="h-[500px] rounded-xl bg-white mb-6 border border-gray-100">
         <HighchartsReact
           highcharts={Highcharts}
           options={chartOptions}
@@ -335,7 +370,6 @@ export default function RhoLineChart({
         />
       </div>
 
-      {/* Información adicional */}
       <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
         <div className="flex items-start gap-3">
           <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -346,10 +380,10 @@ export default function RhoLineChart({
               Relación Rho vs Equivalente Cierto
             </p>
             <p className="text-xs text-gray-600">
-              Este gráfico muestra cómo la utilidad esperada disminuye a medida
+              Este gráfico muestra cómo el equivalente cierto disminuye a medida
               que aumenta el nivel de aversión al riesgo (ρ). Valores más altos
               de ρ indican mayor aversión al riesgo, resultando en menores
-              utilidades esperadas.
+              equivalentes ciertos.
             </p>
           </div>
         </div>

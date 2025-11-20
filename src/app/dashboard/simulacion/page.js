@@ -1,7 +1,6 @@
 "use client";
 import { useSimulation } from "@/context/SimulacionContext";
 import MetricCard from "@/elements/Card/MetricCard";
-import { getDataSimuladaRiqueza } from "@/lib/apiConnection";
 import HistogramChart from "@/views/Charts/HistogramChart";
 import RhoVariablesChart from "@/views/Charts/RhoChart";
 import RhoLineChart from "@/views/Charts/RhoLineChart";
@@ -39,24 +38,11 @@ export default function Page() {
 
       try {
         setLoading(true);
+
         const {
-          riqueza: riquezaInicial,
-          resultadosSimulacion,
-          inversionInicial,
           valorActual,
           escenarios,
         } = simulacionData;
-
-        const response = await getDataSimuladaRiqueza(
-          {
-            riquezaInicial,
-            inversionInicial,
-            resultadosSimulacion,
-          },
-          10000
-        );
-        const responseJSON = await response.json();
-        console.log(responseJSON);
 
         setDataVanActual(valorActual);
         setEscenriosData(escenarios);

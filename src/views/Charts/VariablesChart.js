@@ -19,7 +19,7 @@ export default function VariablesChart({ title = "", data = [] }) {
   useEffect(() => {
     function configCharts() {
       if (data && data.length > 0) {
-        const columnas = Object.keys(data[0]).filter((item) => item !== "VAN");
+        const columnas = Object.keys(data[0]).filter((item) => item !== "RESULTADO");
         setSheetsData(columnas);
         
         if (columnas.length > 0) {

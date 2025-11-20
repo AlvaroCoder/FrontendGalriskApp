@@ -10,6 +10,8 @@ export default function RootLayout({ children }) {
 
     useEffect(() => {
         if (!simulacionData) {
+            console.log(simulacionData);
+            
             router.push("/dashboard")
         }
     }, [simulacionData, router]);

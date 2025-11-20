@@ -54,7 +54,7 @@ export default function RhoVariablesChart({
         const newDataToSend = {
           riquezaInicial: simulacionData?.riqueza,
           inversionInicial: simulacionData?.inversionInicial,
-          resultadosVAN: simulacionData?.resultadosVAN,
+          resultadoSimulacion: simulacionData?.resultadosSimulacion,
         };
 
         const response = await getDataSimuladaRiqueza(newDataToSend, 10000);
@@ -168,12 +168,10 @@ export default function RhoVariablesChart({
     const series = selectedRhos.map(rhoKey => {
       const rhoDef = rhoDefinitions.find(rho => rho.key === rhoKey);
       
-      // Crear pares de datos (x, y) para el scatter plot
       const dataPoints = matrizRho.map((rhoValues, index) => {
-        const x = valoresBaseRiqueza[index]; // Eje X: valores base de riqueza
-        const y = rhoValues[rhoKey]; // Eje Y: valor del rho
+        const x = valoresBaseRiqueza[index];
+        const y = rhoValues[rhoKey];
         
-        // Solo incluir puntos con valores válidos
         if (x != null && y != null && !isNaN(x) && !isNaN(y) && isFinite(x) && isFinite(y)) {
           return [x, y];
         }
