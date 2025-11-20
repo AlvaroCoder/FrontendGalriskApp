@@ -209,7 +209,7 @@ const handleSubmitAdditionDetails = async (data) => {
 
     setOpenDetailData(false);
 
-    router.push("/dashboard");
+    router.push("/dashboard/simulacion");
 
   } catch (err) {
     console.log(err);
