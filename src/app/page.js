@@ -9,9 +9,6 @@ export default function Home() {
     <div className="relative bg-[#ffffff] min-h-screen flex flex-col">
       <TopBarHome/>
       <PrincipalCardHome/>
-
-
-
       <Footer/>
     </div>
   );

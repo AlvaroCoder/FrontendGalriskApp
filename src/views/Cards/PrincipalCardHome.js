@@ -39,7 +39,6 @@ export default function PrincipalCardHome() {
             </p>
           </div>
 
-          {/* Características destacadas */}
           <div className="flex flex-wrap justify-center gap-6 mb-12">
             {[
               { icon: TrendingUp, text: "Análisis en Tiempo Real" },
