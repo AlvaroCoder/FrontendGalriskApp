@@ -121,7 +121,7 @@ export default function FormTopVariables({
   };
 
   return (
-     <div className="w-full max-w-7xl mx-auto animate-slide-up">
+     <div className="w-full  mx-auto animate-slide-up">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ color: colors.primary }}>
           Configuración de Variables

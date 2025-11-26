@@ -106,7 +106,6 @@ export default function ViewExcelVisor({
       const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
       const worksheet = workbook.Sheets[selectedSheet];
       const cell = worksheet[cellAddress];
-      console.log("VALOR DE LA CELDA", cell);
       
       if (cell && cell.f) {
         const formulaUpper = cell.f.toUpperCase();
@@ -122,7 +121,6 @@ export default function ViewExcelVisor({
               cellAddress
             );
             const responseJSON = await response.json();
-            console.log(responseJSON);
 
             setValorCeldaSeleccionada(responseJSON?.valores);
           }
@@ -183,12 +181,11 @@ const handleSubmitAdditionDetails = async (data) => {
     const responseProcess = await processData(newDataToSend);
 
     const responseProcessJSON = await responseProcess.json();
-    console.log(responseProcessJSON);
     
     const simulationData = {
       escenarios: responseProcessJSON?.escenarios,
       resultadosSimulacion: responseProcessJSON?.resultadoSimulacion, 
-      inversionInicial: 10000,
+      inversionInicial: parseInt(data?.inversion),
       valorActual: responseProcessJSON?.valorActual, 
       riqueza: parseInt(data?.riqueza),
       metadata: {

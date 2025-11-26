@@ -65,17 +65,10 @@ export default function Page() {
       const newFormData = new FormData();
       newFormData.append("file", fileExcel);
       newFormData.append("usuario_id", dataSession?.id);
-      newFormData.append(
-        "nombre_excel",
-        formData.nombre_excel || fileExcel.name
-      );
-      newFormData.append("descripcion", formData.descripcion || "");
 
       console.log("Enviando FormData:", {
         file: fileExcel.name,
         usuario_id: dataSession?.id,
-        nombre_excel: formData.nombre_excel,
-        descripcion: formData.descripcion,
       });
 
       const response = await uploadDocumentExcel(newFormData);

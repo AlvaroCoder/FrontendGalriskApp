@@ -15,6 +15,7 @@ export default function DialogAdditionalDetails({
   handleChangeOpen = () => {},
 }) {
   const [data, setData] = useState({
+    inversion : "",
     riqueza: "",
     tasa: "",
   });
@@ -120,6 +121,42 @@ export default function DialogAdditionalDetails({
           <div className="px-6 py-6 space-y-6">
             <div className="space-y-3 group">
               <label
+                htmlFor="inversion"
+                className="block text-sm font-medium transition-all duration-300 group-focus-within:font-semibold"
+                style={{ color: colors.primary }}
+              >
+                Inversion Inicial
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 font-medium">S/</span>
+                </div>
+                <Input
+                  variant="ghost"
+                  name="inversion"
+                  type="number"
+                  onChange={handleChange}
+                  value={data.inversion}
+                  className="pl-10 pr-4 py-3  border-2 border-gray-300 rounded-xl 
+                                        focus:border-accent 
+                                        focus:ring-2 focus:ring-accent/20 
+                                        transition-all duration-300
+                                        hover:border-gray-400
+                                        bg-white
+                                    "
+                  placeholder="0.00"
+                  style={{
+                    borderColor: data.inversion ? colors.accent : undefined,
+                  }}
+                />
+              </div>
+              <p className="text-xs text-gray-500">
+                Ingresa el monto inicial de la inversión
+              </p>
+            </div>
+
+            <div className="space-y-3 group">
+              <label
                 htmlFor="riqueza"
                 className="block text-sm font-medium transition-all duration-300 group-focus-within:font-semibold"
                 style={{ color: colors.primary }}
@@ -150,7 +187,7 @@ export default function DialogAdditionalDetails({
                 />
               </div>
               <p className="text-xs text-gray-500">
-                Ingresa el monto inicial de inversión
+                Ingresa el monto inicial de la riqueza
               </p>
             </div>
 
