@@ -74,15 +74,15 @@ export default function DialogAdditionalDetails({
         <DialogContent
           showCloseButton={false}
           className="
-                        sm:max-w-md 
-                        bg-white 
-                        rounded-2xl 
-                        shadow-2xl 
-                        border-0 
-                        p-0 
-                        overflow-hidden
-                        animate-dialog-in
-                    "
+                sm:max-w-md 
+                bg-white 
+                rounded-2xl 
+                shadow-2xl 
+                border-0 
+                p-0 
+                overflow-hidden
+                animate-dialog-in
+              "
           onClick={handleBackdropClick}
         >
           <div className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
