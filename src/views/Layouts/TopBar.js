@@ -53,7 +53,7 @@ export default function TopBar() {
     <header className="bg-nigth-blue text-white px-6 py-4 flex justify-between items-center shadow-md">
       <h1 
       onClick={()=>router.push("/dashboard")}
-      className="text-2xl font-bold cursor-pointer">Gallrisk</h1>
+      className="text-2xl font-bold cursor-pointer">G@llrisk</h1>
       {
         loading ? 
         <span><Loader2 className='animate-spin' /></span> :

@@ -23,7 +23,7 @@ export default function LoadingPage({ message = "Cargando...", loading=false }) 
           >
             <Loader2 className="w-16 h-16 " />
           </motion.div>
-          <h1 className="font-bold mt-4 text-gray-700 text-lg">Galrisk</h1>
+          <h1 className="font-bold mt-4 text-gray-700 text-lg">G@llrisk</h1>
           <p className="text-sm text-gray-500 mt-1">{message}</p>
         </motion.div>
       </div>

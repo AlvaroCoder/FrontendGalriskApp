@@ -60,7 +60,7 @@ export default function Page() {
         {error && <div className='w-full bg-red-200 rounded-sm p-4 my-4'>
           <p>Error : {error?.error}</p>
         </div>}
-        <h2 className="text-3xl font-bold text-[#14213d] mb-6">Inicia sesión en Galrisk</h2>
+        <h2 className="text-3xl font-bold text-[#14213d] mb-6">Inicia sesión en G@llrisk</h2>
         <p className="text-gray-600 mb-8">Accede a tu cuenta y analiza tus proyectos de manera segura.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">

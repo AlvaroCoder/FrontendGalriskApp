@@ -49,7 +49,7 @@ export default function TopBarHome() {
           <Sparkles className="w-5 h-5 text-nigth-blue" />
         </div>
         <h1 className="text-xl font-bold text-nigth-blue tracking-tight">
-          Gallrisk
+          G@llrisk
         </h1>
       </div>
 
